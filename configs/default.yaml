@@ -1,0 +1,14 @@
+MODEL:
+  NAME: "BaseEffNet"   # 以后改成 "Ours"
+  NUM_CLASSES: 1
+  IMG_SIZE: 256       
+  BACKBONE: "efficientnet-b0"
+
+TRAIN:
+  EPOCHS: 5           # 先跑5个epoch试试水
+  BATCH_SIZE: 4       # 轻薄本别贪
+  LR: 0.001
+  DEVICE: "cpu"       # 强制用CPU，保护笔记本
+
+DATA:
+  ROOT: "./dataset/BUSI" # 改数据集路径(暂无)

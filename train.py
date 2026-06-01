@@ -1,36 +1,29 @@
 import torch
-from loss import LEResUNetLoss 
-from preprocess.dataset import get_dataloader  
-from methods.model import LEResUNet       
+import torch.nn as nn
+import yaml
+from models.base_effnet import BaseEffNet
 
-def main():
-    # 1. 准备机器和材料
-    train_loader = get_dataloader(...) # 拿到装满张量图片的数据集
-    model = LEResUNet()                # 建好模型
-    
-    # 2. 准备 损失函数 和 优化器
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+# 1. 加载配置
+with open("configs/default.yaml", "r") as f:
+    cfg = yaml.safe_load(f)
 
-    criterion = LEResUNetLoss(weight_dice=0.5, weight_bce=0.5, weight_edge=0.1)
-    
-    # 3. 开启训练循环 
-    for epoch in range(50):    #50遍
-        model.train() 
-        
-        # 从 DataLoader 里一批一批地抓取图片和标签
-        for images, masks, edge_masks in train_loader:
-            
-            predictions = model(images) 
-            
-            # 算误差
-            total_loss = criterion(predictions, masks, edge_masks)
-            
-            # 反向传播
-            optimizer.zero_grad() 
-            total_loss.backward() 
-            optimizer.step()      
-            
-        print(f"Epoch {epoch} 完成，误差: {total_loss.item()}")
+# 2. 造模型
+device = "cpu"
+model = BaseEffNet(cfg['MODEL']['NUM_CLASSES']).to(device)
 
-if __name__ == "__main__":
-    main()
+# 3. 造假数据 (模拟 BUSI 图片)
+dummy_img = torch.randn(2, 3, cfg['MODEL']['IMG_SIZE'], cfg['MODEL']['IMG_SIZE']).to(device)
+dummy_mask = torch.randn(2, 1, cfg['MODEL']['IMG_SIZE'], cfg['MODEL']['IMG_SIZE']).to(device)
+
+# 4. 前向传播
+pred = model(dummy_img)
+print("Output shape:", pred.shape) # 期望: [2, 1, 256, 256]
+
+# 5. 计算 Loss (简单版)
+criterion = nn.BCEWithLogitsLoss()
+loss = criterion(pred, dummy_mask)
+print("Loss:", loss.item())
+
+# 6. 反向传播
+loss.backward()
+print("✅ Backward pass successful!")
