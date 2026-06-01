@@ -63,3 +63,5 @@ if __name__ == "__main__":
     attn = CBAM(64)
     y = attn(x)
     print(y.shape)
+
+    

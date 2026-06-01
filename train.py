@@ -1,5 +1,5 @@
 import torch
-from methods.loss import LEResUNetLoss 
+from loss import LEResUNetLoss 
 from preprocess.dataset import get_dataloader  
 from methods.model import LEResUNet       
 
