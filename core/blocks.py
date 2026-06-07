@@ -1,20 +1,6 @@
-""" 
-PyTorch implementation of CBAM: Convolutional Block Attention Module
-
-As described in https://arxiv.org/pdf/1807.06521
-
-The attention mechanism is achieved by using two different types of attention gates: 
-channel-wise attention and spatial attention. The channel-wise attention gate is applied 
-to each channel of the input feature map, and it allows the network to focus on the most 
-important channels based on their spatial relationships. The spatial attention gate is applied 
-to the entire input feature map, and it allows the network to focus on the most important regions 
-of the image based on their channel relationships.
-"""
-
-
-
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 class ChannelAttention(nn.Module):
     def __init__(self, channel, reduction=16):
@@ -64,4 +50,53 @@ if __name__ == "__main__":
     y = attn(x)
     print(y.shape)
 
-    
+class PPM(nn.Module):
+    def __init__(self, in_channels, out_channels, sizes=(1, 2, 3, 6)):
+        super(PPM, self).__init__()
+
+        # 每个分支的通道数降维为输入的 1/4
+        reduction_dim = in_channels // len(sizes)
+
+        self.stages = []
+
+        # 4 个池化分支
+        self.stages = nn.ModuleList(
+            [self._make_stage(in_channels, reduction_dim, size) for size in sizes]
+        )
+
+        # 拼接后的总通道数 = 原通道 + 4个分支的通道数
+        concat_channels = in_channels + (reduction_dim * len(sizes))
+
+        # 最后的融合卷积 (Bottleneck)
+        self.bottleneck = nn.Conv2d(
+            nn.Conv2d(concat_channels, out_channels, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+    def _make_stage(self, in_channels, out_channels, size):
+        return nn.Sequential(
+            nn.AdaptiveAvgPool2d(output_size=(size, size)),
+            nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+    def forward(self, x):
+        # 记住原始输入的宽高
+        h, w = x.size(2), x.size(3)
+        
+        # 第一部分：保留原始特征图
+        out = [x]
+        
+        # 第二部分：依次经过 4 个池化分支，并放大回原始宽高
+        for stage in self.stages:
+            pooled = stage(x)
+            upsampled = F.interpolate(pooled, size=(h, w), mode='bilinear', align_corners=False)
+            out.append(upsampled)
+            
+        # 第三部分：在通道维度上合并它们 (dim=1)
+        out = torch.cat(out, dim=1)
+        
+        # 第四部分：融合并输出目标通道数
+        return self.bottleneck(out)
