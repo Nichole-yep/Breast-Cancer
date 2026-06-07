@@ -68,7 +68,7 @@ class PPM(nn.Module):
         concat_channels = in_channels + (reduction_dim * len(sizes))
 
         # 最后的融合卷积 (Bottleneck)
-        self.bottleneck = nn.Conv2d(
+        self.bottleneck = nn.Sequential(
             nn.Conv2d(concat_channels, out_channels, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True)
