@@ -30,4 +30,4 @@ venv/
 *.ckpt
 runs/
 logs/
-wandb/
+wandb/"test.py" 
