@@ -47,14 +47,17 @@ class SegmentationMetrics:
         self.reset()
 
     def reset(self):
+        #重置混淆矩阵和HD95列表
         self.confusion_matrix = np.zeros((self.num_classes, self.num_classes), dtype=np.int64)
         self.hd95_list = []
 
     def update(self, y_true, y_pred):
+        #更新混淆矩阵（单张图像的标签与预测）
         hist = self._fast_hist(y_true.flatten(), y_pred.flatten())
         self.confusion_matrix += hist
 
     def update_with_boundary(self, pred_mask, gt_mask):
+        #同时更新混淆矩阵并计算当前图像的HD95
         self.update(gt_mask, pred_mask)
         pred_boundary = self._extract_boundary(pred_mask)
         gt_boundary = self._extract_boundary(gt_mask)
@@ -63,6 +66,7 @@ class SegmentationMetrics:
             self.hd95_list.append(hd95)
 
     def _fast_hist(self, label_true, label_pred):
+        #计算两个展平数组的混淆矩阵
         mask = (label_true >= 0) & (label_true < self.num_classes)
         hist = np.bincount(
             self.num_classes * label_true[mask] + label_pred[mask],
@@ -71,6 +75,7 @@ class SegmentationMetrics:
         return hist
 
     def _extract_boundary(self, mask):
+        #提取二值掩码的边界像素
         if mask.ndim == 3:
             mask = mask.squeeze()
         struct = ndimage.generate_binary_structure(2, 1)
@@ -79,6 +84,7 @@ class SegmentationMetrics:
         return np.argwhere(boundary)
 
     def _compute_hd95(self, pred_points, gt_points, spacing):
+        #计算95%豪斯多夫距离（HD95）
         pred_scaled = pred_points * spacing
         gt_scaled = gt_points * spacing
         d_pred_gt = []
@@ -95,16 +101,18 @@ class SegmentationMetrics:
             d_gt_pred.append(min_dist)
         if len(d_pred_gt) == 0 or len(d_gt_pred) == 0:
             return float('inf')
+        # 取双向距离的95百分位数的最大值
         hd95 = max(np.percentile(d_pred_gt, 95), np.percentile(d_gt_pred, 95))
         return hd95
 
     def get_scores(self):
+        #计算并返回所有评估指标
         hist = self.confusion_matrix
         tp = np.diag(hist)
         fp = hist.sum(axis=0) - tp
         fn = hist.sum(axis=1) - tp
         tn = hist.sum() - (tp + fp + fn)
-        eps = 1e-8
+        eps = 1e-8  # 防止除零
         accuracy = (tp[1] + tn[1]) / (tp[1] + tn[1] + fp[1] + fn[1] + eps)
         precision = tp[1] / (tp[1] + fp[1] + eps)
         dice = 2 * tp[1] / (2 * tp[1] + fp[1] + fn[1] + eps)
