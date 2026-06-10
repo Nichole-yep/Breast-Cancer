@@ -1,19 +1,31 @@
+import torch
 import torch.nn as nn
-try:
-    from efficientnet_pytorch import EfficientNet
-except ImportError:
-    print("Please pip install efficientnet-pytorch")
+import timm
 
-class EfficientNetBackbone(nn.Module):
-    def __init__(self, name='efficientnet-b0', pretrained=True):
-        super().__init__()
-        if pretrained:
-            self.net = EfficientNet.from_pretrained(name)
-        else:
-            self.net = EfficientNet.from_name(name)
+class EfficientNetEncoder(nn.Module):
+    def __init__(self, model_name='efficientnet_b0', pretrained=True):
+        super(EfficientNetEncoder, self).__init__()
+        
+        self.encoder = timm.create_model(
+            model_name, 
+            pretrained=pretrained, 
+            features_only=True,
+
+            out_indices=(0, 1, 2, 3, 4) 
+        )
+        
+        # EfficientNet-B0 默认的输出通道数，把这些数字传给 Decoder: 16, 24, 40, 112, 320
+        self.out_channels = self.encoder.feature_info.channels()
 
     def forward(self, x):
-        # 提取多层特征 (用于U-Net跳连)
-        # EfficientNet 自带 extract_features
-        features = self.net.extract_features(x)
+        # features 里面装着 5 个大小不断减半的特征图
+        features = self.encoder(x)
         return features
+
+#  测试代码 
+if __name__ == '__main__':
+    model = EfficientNetEncoder()
+    dummy_input = torch.randn(1, 3, 256, 256)
+    feats = model(dummy_input)
+    for i, f in enumerate(feats):
+        print(f"特征层 {i} 的形状: {f.shape}")
