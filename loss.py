@@ -48,9 +48,8 @@ class DBDSLoss(nn.Module):
             # 1. 算每个像素的基础 BCE Loss
             pixel_bce = self.bce(pred, target)
             
-            # 2. 核心魔法：生成权重地图 (Weight Map)
-            # 基础分为 1。如果是边缘像素 (curr_edge==1)，额外加上 dynamic_weight * 5.0 的惩罚倍数！
-            # 即：训练后期，边缘一旦预测错，扣分极其严重！
+            # 2. 生成权重地图 (Weight Map)
+            # 基础分为 1。如果是边缘像素 (curr_edge==1)，额外加上 dynamic_weight * 5.0 的惩罚倍数
             weight_map = 1.0 + (curr_edge * dynamic_weight * 5.0)
             
             # 3. 把权重乘到 BCE 上，然后求平均
