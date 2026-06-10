@@ -1,4 +1,4 @@
-计算指标：Dice、IoU、平均IoU、准确率、灵敏度、特异度、HD95
+# 计算指标：Dice、IoU、平均IoU、准确率、灵敏度、特异度、HD95
 import os
 import argparse
 import numpy as np
@@ -157,7 +157,7 @@ def main():
         model = torch.load(args.weights, map_location=device)
     except:
         # 若权重为 state_dict，需先定义模型类（请替换为你的模型定义）
-        from your_model_file import YourModel
+        from models import YourModel
         model = YourModel(num_classes=2)
         model.load_state_dict(torch.load(args.weights, map_location=device))
         model.to(device)
