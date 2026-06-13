@@ -86,8 +86,8 @@ class BUSIDataset(Dataset):
         mask_tensor=augmented['mask']
         edge_mask_tensor=augmented['edge_mask']
         #-------为mask,edge增加通道维度--------
-        mask_tensor=mask_tensor.unsqueeze(0)
-        edge_mask_tensor=edge_mask_tensor.unsqueeze(0)
+        mask_tensor=mask_tensor.unsqueeze(0).float()
+        edge_mask_tensor=edge_mask_tensor.unsqueeze(0).float()
 
         #--------返回张量---------
         return img_tensor, mask_tensor, edge_mask_tensor
