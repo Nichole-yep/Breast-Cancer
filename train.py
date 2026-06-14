@@ -41,6 +41,33 @@ def train_and_validate():
     os.makedirs("results/weights", exist_ok=True)
     best_val_dice = 0.0 
 
+    # Sanity Check (预检查) 
+    print("🚀 正在进行训练前预检查 (Sanity Check)...")
+    model.eval()
+    with torch.no_grad():
+        # 从验证集随便抽一个 batch
+        try:
+            chk_images, chk_masks, _ = next(iter(val_loader))
+            chk_images = chk_images.to(DEVICE)
+            
+            chk_preds = model(chk_images)[-1]
+            chk_target_h, chk_target_w = chk_masks.shape[-2], chk_masks.shape[-1]
+            
+            chk_preds = F.interpolate(chk_preds, size=(chk_target_h, chk_target_w), mode='bilinear', align_corners=False)
+            chk_preds_bin = (torch.sigmoid(chk_preds) > 0.5).squeeze(1).cpu().numpy().astype(np.uint8)
+            
+            if chk_masks.dim() == 4:
+                chk_masks = chk_masks.squeeze(1)
+            chk_masks_np = chk_masks.cpu().numpy().astype(np.uint8)
+            
+            chk_metrics = SegmentationMetrics(num_classes=2)
+            # 只测第一张图看会不会崩
+            chk_metrics.update_with_boundary(chk_preds_bin[0], chk_masks_np[0])
+            print("✅ 预检查通过！维度对齐正常，模型准备好开始正式训练！")
+        except Exception as e:
+            print("❌ 预检查失败！请先解决以下报错：")
+            raise e
+    # =================================================================
     # 4. 训练与验证大循环
     for epoch in range(EPOCHS):
         model.train() # 开启训练模式
