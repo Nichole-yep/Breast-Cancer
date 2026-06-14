@@ -38,7 +38,7 @@ def train_and_validate():
     optimizer = optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-2)
     optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-2)
     # 新增：当验证集 Dice 连续 5 个 epoch 不上升时，把学习率降低一半！
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5, verbose=True)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
     os.makedirs("results/weights", exist_ok=True)
     best_val_dice = 0.0 
 
