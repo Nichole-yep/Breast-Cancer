@@ -30,14 +30,14 @@ class BUSIDataset(Dataset):
         if augment:
             aug_transform = [
                 # 随机旋转正负 45 度，并随机缩放和平移 
-                A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=45, p=0.6),
+                A.Affine(scale=(0.9, 1.1), translate_percent=(-0.1, 0.1), rotate=(-45, 45), p=0.6),
                 # 随机水平和上下翻转
                 A.HorizontalFlip(p=0.5),
                 A.VerticalFlip(p=0.3),
                 # 模拟超声探头接触不良时的亮度变化
                 A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
                 # 模拟斑点噪声
-                A.GaussNoise(var_limit=(10.0, 50.0), p=0.4),
+                A.GaussNoise(std_range=(10.0/255.0, 50.0/255.0), p=0.4),
             ]
             transforms=aug_transform+base_transform
         else:
