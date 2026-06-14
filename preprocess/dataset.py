@@ -28,11 +28,17 @@ class BUSIDataset(Dataset):
             ToTensorV2() #转为PyTorch张量，HWC→CHW
         ]
         if augment:
-            aug_transform=[
+            aug_transform = [
+                # 随机旋转正负 45 度，并随机缩放和平移 
+                A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=45, p=0.6),
+                # 随机水平和上下翻转
                 A.HorizontalFlip(p=0.5),
-                A.ElasticTransform(alpha=1, sigma=50,p=0.3),
-                A.GaussNoise(std_range=(10.0/255, 50.0/255), p=0.5)
-                ]
+                A.VerticalFlip(p=0.3),
+                # 模拟超声探头接触不良时的亮度变化
+                A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
+                # 模拟斑点噪声
+                A.GaussNoise(var_limit=(10.0, 50.0), p=0.4),
+            ]
             transforms=aug_transform+base_transform
         else:
             transforms=base_transform
