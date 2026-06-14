@@ -124,6 +124,5 @@ def train_and_validate():
         else:
             print("\n")
         
-
 if __name__ == '__main__':
     train_and_validate()
