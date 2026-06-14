@@ -15,9 +15,11 @@ class UpBlock(nn.Module):
             nn.Conv2d(concat_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
+            nn.Dropout2d(p=0.3),  # 新增：随机丢弃 30% 的特征图
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
+            nn.Dropout2d(p=0.3)   # 新增：再次丢弃
         )
 
     def forward(self, x, skip):
