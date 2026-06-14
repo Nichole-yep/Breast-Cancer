@@ -1,4 +1,3 @@
-
 import os
 import torch
 import torch.optim as optim
@@ -85,7 +84,7 @@ def train_and_validate():
             
             # 模型前向传播，拿到 4 个深监督图
             preds_list = model(images)
-            final_pred_logits = preds_list[-1] 
+            final_pred_logits = preds_list[-1] # 取出最高清的“最终成品”
             
             # 1. Sigmoid 把实数变成 0~1 概率
             final_pred_probs = torch.sigmoid(final_pred_logits)
@@ -107,7 +106,7 @@ def train_and_validate():
     print(f" Epoch [{epoch+1}] 成绩单 | Train Loss: {avg_train_loss:.4f}")
     print(f" 验证集表现 -> Dice: {val_dice:.4f} | IoU: {val_iou:.4f} | HD95: {val_hd95:.2f} 像素")
 
-    # 保存最佳模型 (根据验证集 Dice) 
+    # -------- 保存最佳模型 (根据验证集 Dice) --------
     if val_dice > best_val_dice:
         best_val_dice = val_dice
         save_path = "results/weights/best_our_model.pth"
@@ -116,11 +115,6 @@ def train_and_validate():
     else:
         print("\n")
         
-
-if __name__ == '__main__':
-    train_and_validate()
-        else:
-            print("\n")
 
 if __name__ == '__main__':
     train_and_validate()

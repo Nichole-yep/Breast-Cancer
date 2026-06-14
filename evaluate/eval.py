@@ -183,9 +183,10 @@ class SegmentationMetrics:
 
 
 # ========================== 3. 模型定义（用户需根据实际模型修改） ==========================
-def get_model(weights_path, device, num_classes=2):
-    from your_real_model import YourRealModel  # 替换为实际模型类
-    model = YourRealModel(num_classes=num_classes).to(device)
+def get_model(weights_path, device, num_classes=1): # 注意：这里是 1
+    from models.ours import OurBreastCancerNet 
+    # 注意 num_classes=1 并且不需要 pretrained 权重（因为我们加载本地权重）
+    model = OurBreastCancerNet(pretrained=False, num_classes=1).to(device)
     state_dict = torch.load(weights_path, map_location=device)
     model.load_state_dict(state_dict)
     model.eval()
@@ -257,8 +258,15 @@ def main():
             images = images.to(device)
             masks = masks.to(device)  # (B, H', W')
 
-            outputs = model(images)  # 输出形状 (B, C, H', W')
-            preds = torch.argmax(outputs, dim=1)  # (B, H', W')
+            # 1. 我们的模型输出的是 4 张深监督图的列表！
+            outputs_list = model(images)  
+            
+            # 2. 我们只取最后一张最清晰的原尺寸图
+            final_logits = outputs_list[-1] 
+            
+            # 3. 把实数(Logits)变成概率(Sigmoid)，再通过 >0.5 变成 0和1 的二值图
+            # squeeze(1) 的作用是把形状从 [B, 1, H, W] 变成 [B, H, W]
+            preds = (torch.sigmoid(final_logits) > 0.5).squeeze(1).long()
 
             # 逐样本处理，上采样回原始尺寸
             for i in range(preds.shape[0]):
