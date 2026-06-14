@@ -3,6 +3,7 @@ import torch
 import torch.optim as optim
 from tqdm import tqdm 
 import numpy as np
+import torch.nn.functional as F 
 
 # 导入我们的模型和 Loss
 from models.ours import OurBreastCancerNet
@@ -82,21 +83,20 @@ def train_and_validate():
         for images, masks, edges in val_bar:
             images = images.to(DEVICE)
             
-            # 模型前向传播，拿到 4 个深监督图
+             # 前向传播拿到预测结果
             preds_list = model(images)
-            final_pred_logits = preds_list[-1] # 取出最高清的“最终成品”
+            final_pred_logits = preds_list[-1]
             
-            # 1. Sigmoid 把实数变成 0~1 概率
+            # 把 128x128 的网络输出，强行放大回金标准的 256x256
+            final_pred_logits = F.interpolate(final_pred_logits, size=masks.shape[2:], mode='bilinear', align_corners=False)
+            
             final_pred_probs = torch.sigmoid(final_pred_logits)
-            # 2. >0.5 把概率变成 0和1 的布尔值，再转成 np.uint8 整数类型
-            final_pred_binary = (final_pred_probs > 0.5).cpu().numpy().astype(np.uint8)
             
-            # 把 GPU 上的真实标签也搬到 CPU 并转成 numpy 数组
-            masks_np = masks.cpu().numpy().astype(np.uint8)
+            # 加上 .squeeze(1)，把 (B, 1, H, W) 压成 (B, H, W)
+            final_pred_binary = (final_pred_probs > 0.5).squeeze(1).cpu().numpy().astype(np.uint8)
             
-            # 逐张图片更新混淆矩阵和 HD95 距离
-            for i in range(images.size(0)):
-                val_metrics.update_with_boundary(final_pred_binary[i], masks_np[i])
+            # 同样把真实标签也 squeeze(1) 压扁
+            masks_np = masks.squeeze(1).cpu().numpy().astype(np.uint8)
                 
     scores = val_metrics.get_scores()
     val_dice = scores['dice']
