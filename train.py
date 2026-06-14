@@ -4,6 +4,7 @@ import torch.optim as optim
 from tqdm import tqdm 
 import numpy as np
 import torch.nn.functional as F 
+import matplotlib.pyplot as plt  # 新增：导入matplotlib
 
 # 导入我们的模型和 Loss
 from models.ours import OurBreastCancerNet
@@ -62,6 +63,12 @@ def train_and_validate():
         chk_metrics.update_with_boundary(chk_preds_bin[0], chk_masks_np[0])
         print(" 预检查通过！Dice计算逻辑没报错，开始正式训练！\n")
 
+    # 新增：用于存储训练过程中的指标
+    train_losses = []
+    val_dices = []
+    val_ious = []
+    val_hd95s = []
+
     # 4. 训练与验证大循环
     for epoch in range(EPOCHS):
         # 训练阶段 
@@ -80,6 +87,7 @@ def train_and_validate():
             train_bar.set_postfix({'loss': f"{loss.item():.4f}"})
         
         avg_train_loss = train_loss / len(train_loader)
+        train_losses.append(avg_train_loss)  # 新增：记录训练损失
         
         # 验证阶段 
         model.eval()
@@ -114,6 +122,11 @@ def train_and_validate():
         val_iou = scores['iou']
         val_hd95 = scores['hd95_mean']
         
+        # 新增：记录验证指标
+        val_dices.append(val_dice)
+        val_ious.append(val_iou)
+        val_hd95s.append(val_hd95)
+        
         print(f" Epoch [{epoch+1}] 成绩单 | Train Loss: {avg_train_loss:.4f}")
         print(f" 验证集表现 -> Dice: {val_dice:.4f} | IoU: {val_iou:.4f} | HD95: {val_hd95:.2f} 像素")
 
@@ -129,6 +142,50 @@ def train_and_validate():
         # 告诉调度器当前的 val_dice 是多少。
         # 如果连续 patience 次 val_dice 没有上升，调度器就会自动把学习率降一半
         scheduler.step(val_dice)
-        
+    
+    # 新增：绘制训练曲线
+    print("\n 正在生成训练曲线图...")
+    os.makedirs("results/plots", exist_ok=True)
+    
+    # 创建子图
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    
+    # 子图1：训练损失
+    axes[0, 0].plot(range(1, EPOCHS + 1), train_losses, 'b-', linewidth=2)
+    axes[0, 0].set_xlabel('Epoch')
+    axes[0, 0].set_ylabel('Training Loss')
+    axes[0, 0].set_title('Training Loss Curve')
+    axes[0, 0].grid(True, alpha=0.3)
+    
+    # 子图2：Dice系数
+    axes[0, 1].plot(range(1, EPOCHS + 1), val_dices, 'g-', linewidth=2, label='Validation Dice')
+    axes[0, 1].axhline(y=best_val_dice, color='r', linestyle='--', alpha=0.7, label=f'Best Dice: {best_val_dice:.4f}')
+    axes[0, 1].set_xlabel('Epoch')
+    axes[0, 1].set_ylabel('Dice Coefficient')
+    axes[0, 1].set_title('Dice Coefficient Curve')
+    axes[0, 1].legend()
+    axes[0, 1].grid(True, alpha=0.3)
+    
+    # 子图3：IoU
+    axes[1, 0].plot(range(1, EPOCHS + 1), val_ious, 'orange', linewidth=2)
+    axes[1, 0].set_xlabel('Epoch')
+    axes[1, 0].set_ylabel('IoU')
+    axes[1, 0].set_title('IoU Curve')
+    axes[1, 0].grid(True, alpha=0.3)
+    
+    # 子图4：HD95
+    axes[1, 1].plot(range(1, EPOCHS + 1), val_hd95s, 'purple', linewidth=2)
+    axes[1, 1].set_xlabel('Epoch')
+    axes[1, 1].set_ylabel('HD95 (pixels)')
+    axes[1, 1].set_title('HD95 Curve')
+    axes[1, 1].grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig('results/plots/training_curves.png', dpi=150, bbox_inches='tight')
+    plt.close()
+    
+    print(f" 训练曲线图已保存至: results/plots/training_curves.png")
+    print(f" 最佳验证Dice: {best_val_dice:.4f}")
+
 if __name__ == '__main__':
     train_and_validate()
