@@ -36,10 +36,9 @@ def train_and_validate():
     # 3. 初始化网络与工具
     model = OurBreastCancerNet(pretrained=True).to(DEVICE)
     criterion = DBDSLoss(max_epochs=EPOCHS).to(DEVICE)
-    optimizer = optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-2)
-    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-2)
-    # 新增：当验证集 Dice 连续 5 个 epoch 不上升时，把学习率降低一半！
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5)
+    optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)
+    # 新增：
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=1e-6)
     os.makedirs("results/weights", exist_ok=True)
     best_val_dice = 0.0 
 
@@ -138,10 +137,7 @@ def train_and_validate():
             print(f" 最佳模型 (最佳 Dice: {best_val_dice:.4f}) 已保存！\n")
         else:
             print("\n")
-        # 新增：在这里插入学习率调度器
-        # 告诉调度器当前的 val_dice 是多少。
-        # 如果连续 patience 次 val_dice 没有上升，调度器就会自动把学习率降一半
-        scheduler.step(val_dice)
+        scheduler.step()
     
     # 新增：绘制训练曲线
     print("\n 正在生成训练曲线图...")
