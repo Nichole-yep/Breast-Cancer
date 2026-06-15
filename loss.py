@@ -18,8 +18,6 @@ class DBDSLoss(nn.Module):
         self.max_epochs = max_epochs
         self.bce = nn.BCEWithLogitsLoss(reduction='none')
         
-        # 4 个深监督尺度的权重（越小的草稿图权重越低，最终成品的权重最高）
-        self.ds_weights = [0.1, 0.2, 0.3, 0.4]
 
     def forward(self, preds_list, target, edge_mask, current_epoch):
         """
@@ -31,7 +29,15 @@ class DBDSLoss(nn.Module):
         
         # 动态机制 (Dynamic): 随着 epoch 增加，边界损失的权重从 0 慢慢增大到 1
         dynamic_weight = min(1.0, current_epoch / (self.max_epochs * 0.5))
-
+        # 新增：动态深监督权重
+        # 随着训练进行，让低分辨率草稿的权重逐渐衰减到 0，最终输出的权重逐渐提升到 1.0
+        progress = current_epoch / self.max_epochs
+        w0 = max(0.0, 0.1 - 0.2 * progress) # 草稿1：逐渐归零
+        w1 = max(0.0, 0.2 - 0.4 * progress) # 草稿2：逐渐归零
+        w2 = max(0.0, 0.3 - 0.4 * progress) # 草稿3：逐渐归零
+        w3 = 1.0 - (w0 + w1 + w2)           # 成品：吸收所有权重，后期接近 1.0
+        current_ds_weights = [w0, w1, w2, w3]
+        
         # 深监督机制 (Deep Supervision): 循环遍历 4 个尺度的输出，分别算 Loss
         for i, pred in enumerate(preds_list):
             
@@ -58,6 +64,6 @@ class DBDSLoss(nn.Module):
             # 4. 融合 Dice Loss
             layer_loss = weighted_bce + dice_loss(pred, target)
 
-            total_loss += self.ds_weights[i] * layer_loss
+            total_loss += current_ds_weights[i] * layer_loss
 
         return total_loss
