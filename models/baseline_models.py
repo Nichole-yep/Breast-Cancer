@@ -1,3 +1,11 @@
+# ========================= 中文注释说明 =========================
+# 本文件负责定义 baseline 模型结构，不负责训练和评估。
+# 包含三个对照模型：U-Net、Attention U-Net、DeepLabV3+。
+# 所有模型统一输出 logits，形状为 [B, 1, H, W]。
+# 训练/评估脚本会对 logits 做 sigmoid，再用 0.5 阈值得到二值分割 mask。
+# base_channels 控制模型宽度：CPU 测试可用 16，正式训练可根据显存/内存选择 32。
+# ===============================================================
+
 # models/baseline_models.py
 # Baseline segmentation models for BUSI breast ultrasound segmentation.
 # Supports: U-Net, Attention U-Net, Lightweight DeepLabV3+.
@@ -12,7 +20,13 @@ import torch.nn.functional as F
 
 
 class DoubleConv(nn.Module):
-    """Conv-BN-ReLU twice."""
+    """
+    Basic convolution block: Conv2d + BatchNorm + ReLU, repeated twice.
+
+    中文说明：
+    这是 U-Net 类模型中最常用的基础特征提取模块。
+    Conv2d 提取局部纹理/边缘；BatchNorm 稳定训练；ReLU 增强非线性表达。
+    """
     def __init__(self, in_channels, out_channels, mid_channels=None, dropout=0.0):
         super().__init__()
         if mid_channels is None:
@@ -36,7 +50,12 @@ class DoubleConv(nn.Module):
 
 
 class Down(nn.Module):
-    """Downscaling with maxpool then DoubleConv."""
+    """
+    Downsampling block: MaxPool2d halves the feature-map size, then DoubleConv extracts features.
+
+    中文说明：
+    下采样会让特征图尺寸变小、感受野变大，用于学习更高级的语义信息。
+    """
     def __init__(self, in_channels, out_channels, dropout=0.0):
         super().__init__()
         self.net = nn.Sequential(
@@ -49,7 +68,13 @@ class Down(nn.Module):
 
 
 class Up(nn.Module):
-    """Upscaling then DoubleConv."""
+    """
+    U-Net upsampling block.
+
+    中文说明：
+    先上采样恢复空间尺寸，再和编码器对应层的 skip feature 拼接，
+    这样可以同时利用深层语义信息和浅层边界细节。
+    """
     def __init__(self, in_channels, out_channels, bilinear=True, dropout=0.0):
         super().__init__()
         if bilinear:
@@ -72,12 +97,20 @@ class Up(nn.Module):
                  diff_y // 2, diff_y - diff_y // 2]
             )
 
+        # Concatenate encoder and decoder features along channel dimension.
+        # dim=1 表示按通道拼接，这是 U-Net skip connection 的核心。
         x = torch.cat([x2, x1], dim=1)
         return self.conv(x)
 
 
 class UNetBaseline(nn.Module):
-    """Standard U-Net baseline."""
+    """
+    Standard U-Net baseline.
+
+    中文说明：
+    U-Net 是医学图像分割最经典的 baseline。
+    这里作为对照模型，用来证明小组最终模型是否真的有改进。
+    """
     def __init__(self, in_channels=3, num_classes=1, base_channels=32, bilinear=True):
         super().__init__()
         self.inc = DoubleConv(in_channels, base_channels)
@@ -113,7 +146,13 @@ class UNetBaseline(nn.Module):
 
 
 class AttentionGate(nn.Module):
-    """Attention gate used in Attention U-Net."""
+    """
+    Attention gate used in Attention U-Net.
+
+    中文说明：
+    Attention Gate 会给 skip feature 加一个空间注意力权重，
+    让模型更多关注疑似病灶区域，减少背景噪声影响。
+    """
     def __init__(self, gate_channels, skip_channels, inter_channels):
         super().__init__()
         self.w_g = nn.Sequential(
@@ -134,6 +173,8 @@ class AttentionGate(nn.Module):
     def forward(self, gate, skip):
         if gate.shape[-2:] != skip.shape[-2:]:
             gate = F.interpolate(gate, size=skip.shape[-2:], mode="bilinear", align_corners=False)
+        # gate: decoder feature, skip: encoder feature.
+        # psi 是 0~1 的注意力图，数值越大表示该位置越重要。
         psi = self.relu(self.w_g(gate) + self.w_x(skip))
         psi = self.psi(psi)
         return skip * psi
@@ -158,7 +199,13 @@ class AttentionUp(nn.Module):
 
 
 class AttentionUNetBaseline(nn.Module):
-    """Attention U-Net baseline."""
+    """
+    Attention U-Net baseline.
+
+    中文说明：
+    相比普通 U-Net，Attention U-Net 在 skip connection 前加入注意力门控，
+    用作第二个经典对照模型。
+    """
     def __init__(self, in_channels=3, num_classes=1, base_channels=32, bilinear=True):
         super().__init__()
         self.inc = DoubleConv(in_channels, base_channels)
@@ -193,7 +240,13 @@ class AttentionUNetBaseline(nn.Module):
 
 
 class ASPP(nn.Module):
-    """Atrous Spatial Pyramid Pooling block for DeepLabV3+."""
+    """
+    Atrous Spatial Pyramid Pooling block for DeepLabV3+.
+
+    中文说明：
+    ASPP 使用不同 dilation rate 的空洞卷积提取多尺度上下文，
+    适合处理大小不同的病灶区域。
+    """
     def __init__(self, in_channels, out_channels=128, rates=(1, 6, 12, 18)):
         super().__init__()
         branches = []
@@ -219,6 +272,8 @@ class ASPP(nn.Module):
         )
 
     def forward(self, x):
+        # Each branch has a different dilation rate, so each branch captures a different receptive field.
+        # 不同分支对应不同尺度的上下文信息。
         feats = [branch(x) for branch in self.branches]
         x = torch.cat(feats, dim=1)
         return self.project(x)
@@ -231,6 +286,10 @@ class DeepLabV3PlusBaseline(nn.Module):
     This is a runnable DeepLabV3+ style implementation with:
     encoder + ASPP + low-level feature decoder.
     It does not download external pretrained weights, so it is easier to run on CPU/offline.
+
+    中文说明：
+    这是轻量版 DeepLabV3+，保留 encoder + ASPP + low-level decoder 的核心思想，
+    但不依赖外部预训练权重，便于在本地 CPU 环境中跑通 baseline。
     """
     def __init__(self, in_channels=3, num_classes=1, base_channels=32):
         super().__init__()
@@ -271,6 +330,10 @@ class DeepLabV3PlusBaseline(nn.Module):
 def get_baseline_model(model_name, in_channels=3, num_classes=1, base_channels=32):
     """
     Build a baseline model by name.
+
+    中文说明：
+    训练和评估脚本都通过这个函数创建模型。
+    这样只需要改变 --model 参数，就可以切换不同 baseline。
 
     Available names:
     - unet

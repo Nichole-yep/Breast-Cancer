@@ -1,3 +1,12 @@
+# ========================= 中文注释说明 =========================
+# 本文件负责评估训练好的 baseline 模型。
+# 目的：把 U-Net、Attention U-Net、DeepLabV3+ 的输出接入小组统一评价指标。
+# 数据入口：使用 preprocess/dataset.py 的 BUSIDataset，并设置 augment=False，保证测试过程不做随机增强。
+# 指标入口：复用 evaluate/eval.py 的 SegmentationMetrics，输出 Dice、IoU、Accuracy、Precision、Sensitivity、Specificity、HD95。
+# 权重要求：评估时的 --base_channels 必须和训练时一致，否则 .pth 权重无法正确加载。
+# 输出结果：评估完成后会保存 CSV 到 results/baseline_metrics，方便做横向对比表。
+# ===============================================================
+
 # evaluate/eval_baseline_models.py
 # Evaluate baseline segmentation models using the same SegmentationMetrics from evaluate/eval.py.
 #
@@ -23,6 +32,13 @@ from models.baseline_models import get_baseline_model
 
 
 def extract_logits(model_output):
+    """
+    Extract final logits from model output.
+
+    中文说明：
+    评估阶段只需要最终分割图 logits。
+    该函数和训练脚本中的 extract_logits 保持一致，保证不同模型输出格式都能被评估。
+    """
     if isinstance(model_output, (list, tuple)):
         return model_output[-1]
     if isinstance(model_output, dict):
@@ -33,6 +49,7 @@ def extract_logits(model_output):
 
 
 def evaluate_model(args):
+    # Device selection. 如果没有 GPU，就使用 CPU。
     if args.device == "cuda" and not torch.cuda.is_available():
         print("CUDA is not available. Falling back to CPU.")
         device = torch.device("cpu")
@@ -41,6 +58,7 @@ def evaluate_model(args):
     print(f"Using device: {device}")
 
     # Same preprocess module as training. augment=False for fair evaluation.
+    # 测试集评估不能使用随机增强，否则每次结果会不稳定。
     dataset = BUSIDataset(
         csv_file=args.csv_file,
         ues_lee=(not args.no_lee),
@@ -55,6 +73,8 @@ def evaluate_model(args):
     )
     print(f"Test samples: {len(dataset)}")
 
+    # Build the same model architecture used during training.
+    # 注意：--base_channels 必须和训练时一致，否则权重维度无法匹配。
     model = get_baseline_model(
         model_name=args.model,
         in_channels=3,
@@ -65,10 +85,14 @@ def evaluate_model(args):
     if not os.path.exists(args.weights):
         raise FileNotFoundError(f"Weight file not found: {args.weights}")
 
+    # Load trained weights and switch to evaluation mode.
+    # model.eval() 会关闭 Dropout，并使用 BatchNorm 的推理模式。
     state_dict = torch.load(args.weights, map_location=device)
     model.load_state_dict(state_dict)
     model.eval()
 
+    # Reuse the group's original metric implementation for fair comparison.
+    # 统一使用 evaluate/eval.py 里的 SegmentationMetrics。
     metrics = SegmentationMetrics(num_classes=2)
 
     with torch.no_grad():
@@ -82,12 +106,15 @@ def evaluate_model(args):
             if logits.shape[-2:] != masks.shape[-2:]:
                 logits = F.interpolate(logits, size=masks.shape[-2:], mode="bilinear", align_corners=False)
 
+            # Convert logits to binary mask: sigmoid -> threshold.
+            # sigmoid 后大于阈值的位置判定为病灶前景。
             preds = (torch.sigmoid(logits) > args.threshold).long()
 
             preds_np = preds.squeeze(1).cpu().numpy().astype("uint8")
             masks_np = (masks.squeeze(1).cpu().numpy() > 0).astype("uint8")
 
             for i in range(preds_np.shape[0]):
+                # update_with_boundary updates Dice/IoU/confusion matrix and HD95 boundary information.
                 metrics.update_with_boundary(preds_np[i], masks_np[i])
 
     scores = metrics.get_scores()
@@ -107,6 +134,8 @@ def evaluate_model(args):
     print(f"Confusion matrix foreground: TP={scores['TP']}, FP={scores['FP']}, FN={scores['FN']}, TN={scores['TN']}")
     print("=" * 70)
 
+    # Save metrics as CSV for later report table.
+    # 保存为 CSV，方便后续汇总到横向对比表。
     os.makedirs(args.output_dir, exist_ok=True)
     result_csv = os.path.join(args.output_dir, f"{args.model}_test_metrics.csv")
     with open(result_csv, "w", newline="", encoding="utf-8") as f:

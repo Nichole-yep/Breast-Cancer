@@ -1,3 +1,12 @@
+# ========================= 中文注释说明 =========================
+# 本文件负责训练 baseline 对照模型。
+# 目的：让 U-Net、Attention U-Net、DeepLabV3+ 使用同一个数据集划分、同一个预处理、同一个 loss 设置。
+# 数据入口：直接调用 preprocess/dataset.py 里的 get_loaders。
+# 评价入口：训练过程中调用 evaluate/eval.py 里的 SegmentationMetrics，在验证集上计算 Dice/IoU/HD95 等指标。
+# 保存规则：每个 epoch 验证一次，如果 Val Dice 变高，就保存 best_xxx.pth。
+# 注意：这里的 test_csv 只是传给 get_loaders 以保持接口一致，训练阶段不使用 test set 选择模型。
+# ===============================================================
+
 # train_baseline_models.py
 # Train baseline segmentation models using the group's own BUSI preprocess/dataset.
 #
@@ -25,6 +34,12 @@ from models.baseline_models import get_baseline_model
 
 def extract_logits(model_output):
     """
+    Extract the final logits from different model output formats.
+
+    中文说明：
+    有的模型直接返回 tensor，有的模型返回 list/tuple/dict。
+    为了让训练代码兼容不同模型，这里统一取最终 logits。
+
     Make the training code compatible with both:
     - baseline models returning a tensor [B,1,H,W]
     - deep-supervision models returning list/tuple, where last item is final logits
@@ -43,6 +58,10 @@ def extract_logits(model_output):
 def dice_loss_from_logits(logits, targets, eps=1e-7):
     """
     Binary Dice loss.
+
+    中文说明：
+    Dice 衡量预测区域和真实 mask 的重叠程度。
+    Dice 越大越好，所以 Dice Loss = 1 - Dice。
     logits:  [B,1,H,W]
     targets: [B,1,H,W], values 0/1
     """
@@ -58,6 +77,10 @@ def dice_loss_from_logits(logits, targets, eps=1e-7):
 def combined_bce_dice_loss(logits, targets):
     """
     Fair simple baseline loss: 0.5 * BCE + 0.5 * Dice.
+
+    中文说明：
+    BCE 负责逐像素二分类，Dice 用来缓解前景/背景不平衡。
+    baseline 不加入 Edge Loss，避免把小组最终模型的创新点加入对照模型。
     Edge loss is not used for baselines because U-Net/Attention U-Net/DeepLabV3+ are comparison models.
     """
     bce = F.binary_cross_entropy_with_logits(logits, targets.float())
@@ -68,6 +91,10 @@ def combined_bce_dice_loss(logits, targets):
 def evaluate_on_loader(model, dataloader, device):
     """
     Validate/test using the same SegmentationMetrics from evaluate/eval.py.
+
+    中文说明：
+    每个 epoch 训练结束后，用验证集计算 Dice、IoU、HD95 等指标，
+    并根据验证集 Dice 保存 best model。
     """
     model.eval()
     metrics = SegmentationMetrics(num_classes=2)
@@ -98,6 +125,7 @@ def train_one_model(args):
     os.makedirs(args.log_dir, exist_ok=True)
 
     # Device
+    # 如果用户选择 cuda 但电脑没有 GPU，就自动退回 CPU，避免程序报错。
     if args.device == "cuda" and not torch.cuda.is_available():
         print("CUDA is not available. Falling back to CPU.")
         device = torch.device("cpu")
@@ -106,6 +134,7 @@ def train_one_model(args):
     print(f"Using device: {device}")
 
     # Data
+    # 这里直接调用小组已有 preprocess/dataset.py，保证 baseline 和最终模型使用同样的数据预处理。
     print("Loading BUSI DataLoaders from preprocess/dataset.py ...")
     train_loader, val_loader, _test_loader = get_loaders(
         train_csv=args.train_csv,
@@ -117,6 +146,7 @@ def train_one_model(args):
     )
 
     # Model
+    # 根据命令行 --model 选择 unet / attention_unet / deeplabv3plus。
     model = get_baseline_model(
         model_name=args.model,
         in_channels=3,
@@ -124,6 +154,8 @@ def train_one_model(args):
         base_channels=args.base_channels
     ).to(device)
 
+    # Optimizer and learning-rate scheduler.
+    # AdamW 用于更新参数；CosineAnnealingLR 让学习率随 epoch 平滑下降。
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=args.min_lr)
 
@@ -140,6 +172,8 @@ def train_one_model(args):
     print(f"Best model will be saved to: {best_path}\n")
 
     for epoch in range(1, args.epochs + 1):
+        # Training phase.
+        # model.train() 会启用训练模式，例如 Dropout/BatchNorm 的训练行为。
         model.train()
         running_loss = 0.0
 
@@ -148,6 +182,8 @@ def train_one_model(args):
             images = images.to(device)
             masks = masks.to(device).float()  # [B,1,H,W]
 
+            # Standard PyTorch training steps:
+            # clear gradients -> forward -> loss -> backward -> update weights.
             optimizer.zero_grad()
             outputs = model(images)
             logits = extract_logits(outputs)
@@ -164,6 +200,8 @@ def train_one_model(args):
 
         avg_train_loss = running_loss / max(len(train_loader), 1)
 
+        # Validation phase.
+        # 用验证集 Dice 选择 best model，不能用 test set 选模型。
         val_scores = evaluate_on_loader(model, val_loader, device)
         val_dice = val_scores["dice"]
 
@@ -175,7 +213,8 @@ def train_one_model(args):
             f"Val HD95: {val_scores['hd95_mean']:.2f}"
         )
 
-        # Save log
+        # Save log.
+        # 每个 epoch 保存一行日志，后续可以画训练曲线或写实验报告。
         with open(log_path, "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow([
@@ -189,7 +228,8 @@ def train_one_model(args):
                 f"{val_scores['hd95_mean']:.6f}",
             ])
 
-        # Save best
+        # Save best.
+        # 只有当前 Val Dice 更高，才覆盖 best_xxx.pth。
         if val_dice > best_dice:
             best_dice = val_dice
             torch.save(model.state_dict(), best_path)
