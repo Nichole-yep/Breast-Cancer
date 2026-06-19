@@ -2,6 +2,32 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
+# tversky_loss
+def tversky_loss(pred, target, alpha=0.3, beta=0.7, smooth=1e-5):
+    """
+    alpha: 对假阴性(FN)的惩罚权重
+    beta: 对假阳性(FP)的惩罚权重。beta 设大一点 (如0.7)，强迫模型少预测孤立噪点！
+    """
+    pred = torch.sigmoid(pred)
+    
+    # 展平以便计算
+    pred = pred.view(-1)
+    target = target.view(-1)
+    
+    # True Positives
+    TP = (pred * target).sum()
+    # False Positives (预测了1但真实是0) -> 导致高 HD95 的罪魁祸首！
+    FP = (pred * (1.0 - target)).sum()
+    # False Negatives (预测了0但真实是1)
+    FN = ((1.0 - pred) * target).sum()
+    
+    # 计算 Tversky 系数
+    tversky = (TP + smooth) / (TP + alpha * FN + beta * FP + smooth)
+    
+    return 1.0 - tversky
+
+
 # 1. 计算 Dice Loss 
 def dice_loss(pred, target, smooth=1e-5):
     # 将预测结果通过 sigmoid 映射到 0~1 的概率
@@ -56,14 +82,17 @@ class DBDSLoss(nn.Module):
             
             # 2. 生成权重地图 (Weight Map)
             # 基础分为 1。如果是边缘像素 (curr_edge==1)，额外加上 dynamic_weight * 5.0 的惩罚倍数
-            weight_map = 1.0 + (curr_edge * dynamic_weight * 5.0)
+            #漏掉前景时付出更大的BCE损失代价
+            base_weight_map = 1.0 + target * (self.pos_weight - 1.0)
+
+            #将基础权重于动态边缘权重叠加
+            weight_map = base_weight_map + (curr_edge * dynamic_weight * 5.0)
             
             # 3. 把权重乘到 BCE 上，然后求平均
             weighted_bce = (pixel_bce * weight_map).mean()
 
             # 4. 融合 Dice Loss
-            layer_loss = weighted_bce + dice_loss(pred, target)
-
-            total_loss += current_ds_weights[i] * layer_loss
+            # layer_loss = weighted_bce + dice_loss(pred, target)
+            layer_loss = weighted_bce + tversky_loss(pred, target, alpha=0.3, beta=0.7)
 
         return total_loss
