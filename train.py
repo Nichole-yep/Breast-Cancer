@@ -218,7 +218,7 @@ def test_best_model(model, test_loader, DEVICE):
             
             # 先放大，再二值化
             final_pred_logits = F.interpolate(preds_list[-1], size=(target_h, target_w), mode='bilinear', align_corners=False)
-            final_pred_binary = (torch.sigmoid(final_pred_logits) > 0.5).squeeze(1).cpu().numpy().astype(np.uint8)
+            final_pred_binary = (torch.sigmoid(final_pred_logits) > 0.65).squeeze(1).cpu().numpy().astype(np.uint8)
             
             # 更新评估指标
             for i in range(images.size(0)): 
