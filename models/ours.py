@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from core.backbones import EfficientNetEncoder
-from core.blocks import PPM
+from core.blocks import PPM, CBAM
 from core.decoders import DeepSupervisionDecoder
 
 class OurBreastCancerNet(nn.Module):
@@ -24,6 +24,9 @@ class OurBreastCancerNet(nn.Module):
         # PPM 接在网络的最深层，即 enc_channels[4] (320通道)
         # 为了让解码器好处理， PPM 的输出通道数和输入保持一致 (依然是 320)
         self.ppm = PPM(in_channels=enc_channels[4], out_channels=enc_channels[4])
+
+        # 在PPM后添加CBAM注意力模块
+        self.cbam_ppm = CBAM(enc_channels[4])
         
         # 深监督解码器 (Decoder)
         # 将通道数列表传给解码器，它会自动对齐通道，并准备好输出 4 个预测图
@@ -40,11 +43,14 @@ class OurBreastCancerNet(nn.Module):
         # 2. 拿出最深处、最抽象的特征图 (feat4)，送进 PPM 进行“多尺度视野拓展”
         # PPM 会捕捉超大肿瘤和微小肿瘤的全局信息
         feat4_ppm = self.ppm(features[4])
+
+        # 3. 在PPM后应用CBAM注意力
+        feat4_ppm = self.cbam_ppm(feat4_ppm)
         
-        # 3. 把增强后的 feat4_ppm 塞回列表中，替换掉原来的 feat4
+        # 4. 把增强后的 feat4_ppm 塞回列表中，替换掉原来的 feat4
         features[4] = feat4_ppm
         
-        # 4. 把这 5 个特征图给深监督解码器
+        # 5. 把这 5 个特征图给深监督解码器
         # 解码器会一层层放大，并输出 4 张草稿/成品图
         preds_list = self.decoder(features)
         
