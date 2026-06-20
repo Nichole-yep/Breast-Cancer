@@ -12,6 +12,7 @@ from tqdm import tqdm
 from scipy import ndimage
 import torch.nn as nn
 
+
 # ========================== 1. 数据集定义 ==========================
 class PreprocessedBUSIDataset(Dataset):
     """加载预处理后的 BUSI 测试集，支持 resize 和归一化"""
@@ -36,8 +37,8 @@ class PreprocessedBUSIDataset(Dataset):
         return len(self.df)
 
     def __getitem__(self, idx):
-        img_path = self.df.iloc[idx]['images']
-        mask_path = self.df.iloc[idx]['masks']
+        img_path = self.df.iloc[idx]['img_path']
+        mask_path = self.df.iloc[idx]['mask_path']
 
         # 读取图像
         img = cv2.imread(img_path)
@@ -268,16 +269,21 @@ def main():
             # squeeze(1) 的作用是把形状从 [B, 1, H, W] 变成 [B, H, W]
             preds = (torch.sigmoid(final_logits) > 0.5).squeeze(1).long()
 
-            # 逐样本处理，上采样回原始尺寸
+            # ========== 新增：将预测上采样到与 masks 相同尺寸 ==========
+            _, H, W = masks.shape
+            preds = F.interpolate(
+                preds.unsqueeze(1).float(),
+                size=(H, W),
+                mode='nearest'
+            ).squeeze(1).long()
+            # =========================================================
+
+            # 逐样本处理，直接使用小尺寸预测和真实掩码（不进行上采样）
             for i in range(preds.shape[0]):
-                pred_small = preds[i]  # (H', W')
-                gt_small = masks[i]  # (H', W')
-                orig_h = orig_h_list[i].item()
-                orig_w = orig_w_list[i].item()
-                # 上采样预测图到原始尺寸
-                pred_original = resize_pred_to_original(pred_small, orig_h, orig_w)
-                gt_original = gt_small.cpu().numpy()
-                metrics.update_with_boundary(pred_original, gt_original)
+                pred_small = preds[i]          # (H', W')
+                gt_small = masks[i]            # (H', W')
+                # 转为 numpy 并传入指标计算
+                metrics.update_with_boundary(pred_small.cpu().numpy(), gt_small.cpu().numpy())
 
     # 5. 输出结果
     scores = metrics.get_scores()
