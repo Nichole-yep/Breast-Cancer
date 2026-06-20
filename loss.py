@@ -4,10 +4,10 @@ import torch.nn.functional as F
 
 
 # tversky_loss
-def tversky_loss(pred, target, alpha=0.3, beta=0.7, smooth=1e-5):
+def tversky_loss(pred, target, alpha=0.2, beta=0.8, smooth=1e-5):
     """
     alpha: 对假阴性(FN)的惩罚权重
-    beta: 对假阳性(FP)的惩罚权重。beta 设大一点 (如0.7)，强迫模型少预测孤立噪点！
+    beta: 对假阳性(FP)的惩罚权重。beta 设大一点 (如0.8)，强迫模型少预测孤立噪点！
     """
     pred = torch.sigmoid(pred)
     
@@ -39,10 +39,12 @@ def dice_loss(pred, target, smooth=1e-5):
 
 # 3. DBDS 动态边界深监督损失函数
 class DBDSLoss(nn.Module):
-    def __init__(self, max_epochs=100):
+    def __init__(self, max_epochs=100, pos_weight=15.0):
         super(DBDSLoss, self).__init__()
         self.max_epochs = max_epochs
         self.bce = nn.BCEWithLogitsLoss(reduction='none')
+        # 新增pos_weight: 前景像素的基础惩罚倍数，用于对抗类别不平衡
+        self.pos_weight = pos_weight
         
 
     def forward(self, preds_list, target, edge_mask, current_epoch):
@@ -93,6 +95,8 @@ class DBDSLoss(nn.Module):
 
             # 4. 融合 Dice Loss
             # layer_loss = weighted_bce + dice_loss(pred, target)
-            layer_loss = weighted_bce + tversky_loss(pred, target, alpha=0.3, beta=0.7)
+            layer_loss = weighted_bce + tversky_loss(pred, target, alpha=0.2, beta=0.8)
+
+            total_loss +=current_ds_weights[i] * layer_loss
 
         return total_loss
