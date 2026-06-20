@@ -35,7 +35,7 @@ def train_and_validate():
 
     # 3. 初始化网络与工具
     model = OurBreastCancerNet(pretrained=True).to(DEVICE)
-    criterion = DBDSLoss(max_epochs=EPOCHS).to(DEVICE)
+    criterion = DBDSLoss(max_epochs=EPOCHS, pos_weight=15.0).to(DEVICE)  # 添加 pos_weight
     optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)
     # 新增：
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=1e-6)
@@ -182,6 +182,89 @@ def train_and_validate():
     
     print(f" 训练曲线图已保存至: results/plots/training_curves.png")
     print(f" 最佳验证Dice: {best_val_dice:.4f}")
+
+    # 5. 在测试集上评估最佳模型
+    test_best_model(model, test_loader, DEVICE)
+    
+    return model, best_val_dice
+
+def test_best_model(model, test_loader, DEVICE):
+    """在测试集上评估最佳模型"""
+    print("\n" + "="*60)
+    print(" 开始在 Test 集上评估最佳模型 ")
+    print("="*60)
+    
+    # 加载最佳模型权重
+    weights_path = "results/weights/best_our_model.pth"
+    print(f"正在加载最佳模型权重: {weights_path}")
+    model.load_state_dict(torch.load(weights_path, map_location=DEVICE))
+    model.eval()
+    
+    metrics = SegmentationMetrics(num_classes=2)
+    
+    with torch.no_grad():
+        test_bar = tqdm(test_loader, desc="Testing Best Model")
+        for images, masks, edges in test_bar:
+            images = images.to(DEVICE)
+            
+            # 处理真实标签
+            target_h, target_w = masks.shape[-2], masks.shape[-1]
+            if masks.dim() == 4:
+                masks = masks.squeeze(1)
+            masks_np = (masks.cpu().numpy() > 0).astype(np.uint8)
+            
+            # 推理
+            preds_list = model(images)
+            
+            # 先放大，再二值化
+            final_pred_logits = F.interpolate(preds_list[-1], size=(target_h, target_w), mode='bilinear', align_corners=False)
+            final_pred_binary = (torch.sigmoid(final_pred_logits) > 0.5).squeeze(1).cpu().numpy().astype(np.uint8)
+            
+            # 更新评估指标
+            for i in range(images.size(0)): 
+                metrics.update_with_boundary(final_pred_binary[i], masks_np[i])
+                
+    # 打印最终成绩单
+    scores = metrics.get_scores()
+    print("\n" + "="*50)
+    print(" 测试集 (Test Set) 最终成绩单 ")
+    print("="*50)
+    print(f"Dice 系数:     {scores['dice']:.4f}")
+    print(f"IoU (Jaccard): {scores['iou']:.4f}")
+    print(f"准确率:        {scores['accuracy']:.4f}")
+    print(f"灵敏度:        {scores['sensitivity']:.4f}")
+    print(f"特异度:        {scores['specificity']:.4f}")
+    print(f"HD95:          {scores['hd95_mean']:.2f} 像素")
+    print("="*50)
+    
+    # 保存测试结果到文件
+    save_test_results(scores)
+    
+    return scores
+
+def save_test_results(scores):
+    """保存测试结果到文件"""
+    os.makedirs("results", exist_ok=True)
+    
+    with open("results/test_results.txt", "w") as f:
+        f.write("="*50 + "\n")
+        f.write(" 测试集 (Test Set) 最终成绩单 \n")
+        f.write("="*50 + "\n")
+        f.write(f"Dice 系数:     {scores['dice']:.4f}\n")
+        f.write(f"IoU (Jaccard): {scores['iou']:.4f}\n")
+        f.write(f"准确率:        {scores['accuracy']:.4f}\n")
+        f.write(f"灵敏度:        {scores['sensitivity']:.4f}\n")
+        f.write(f"特异度:        {scores['specificity']:.4f}\n")
+        f.write(f"HD95:          {scores['hd95_mean']:.2f} 像素\n")
+        f.write("="*50 + "\n")
+    
+    print(f" 测试结果已保存至: results/test_results.txt")
+
+if __name__ == '__main__':
+    # 运行完整的训练和测试流程
+    trained_model, best_dice = train_and_validate()
+    print(f"\n🎉 训练和测试完成！最佳验证Dice: {best_dice:.4f}")
+
 
 if __name__ == '__main__':
     train_and_validate()
