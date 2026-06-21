@@ -11,8 +11,8 @@
 完整实验：python ablation.py --mode full
 """
 
-
 import os
+
 os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 import csv
 import random
@@ -34,6 +34,12 @@ from models.ours import OurBreastCancerNet as CoreModel
 # 2. 数据集路径
 TRAIN_CSV = 'preprocess/train.csv'
 VAL_CSV = 'preprocess/val.csv'
+TEST_CSV = 'preprocess/test.csv'  # 新增：测试集路径
+
+# 3. 导入损失函数
+from loss import tversky_loss
+
+
 # =====================================================================
 
 # -------------------- 包装类  --------------------
@@ -41,6 +47,7 @@ class AblationWrapper(nn.Module):
     """
     包装核心模型，根据消融配置禁用 PPM / CBAM / 深监督
     """
+
     def __init__(self, core_model, use_ppm, use_cbam, use_deep_supervision):
         super().__init__()
         self.core = core_model
@@ -79,7 +86,7 @@ class ExperimentConfig:
         self.use_ppm = False
         self.use_cbam = False
         self.use_deep_supervision = False
-        self.pos_weight = 1.0
+        self.pos_weight = 1.0  # 仅保留占位，tversky 不使用
 
         self._set_experiment(exp_id)
         self.exp_name = exp_id
@@ -119,7 +126,7 @@ class ExperimentConfig:
 def build_model(config):
     core = CoreModel(
         model_name='efficientnet_b0',
-        pretrained=True,           # 正式实验必须为 True
+        pretrained=True,  # 正式实验必须为 True
         num_classes=config.num_classes
     )
     wrapper = AblationWrapper(
@@ -219,7 +226,7 @@ class CSVMedicalDataset(Dataset):
 
 
 # -------------------- 4. 数据加载器 --------------------
-def get_dataloaders(config, train_csv, val_csv):
+def get_dataloaders(config, train_csv, val_csv, test_csv=None):
     train_dataset = CSVMedicalDataset(train_csv, img_size=config.img_size)
     val_dataset = CSVMedicalDataset(val_csv, img_size=config.img_size)
     print(f" 训练集: {len(train_dataset)} 张 | 验证集: {len(val_dataset)} 张")
@@ -238,32 +245,42 @@ def get_dataloaders(config, train_csv, val_csv):
         num_workers=config.num_workers,
         pin_memory=config.pin_memory
     )
-    return train_loader, val_loader
+
+    test_loader = None
+    if test_csv is not None and os.path.exists(test_csv):
+        test_dataset = CSVMedicalDataset(test_csv, img_size=config.img_size)
+        test_loader = DataLoader(
+            test_dataset,
+            batch_size=1,  # 测试时 batch_size=1 更精确计算 HD95
+            shuffle=False,
+            num_workers=0,
+            pin_memory=False
+        )
+        print(f" 测试集: {len(test_dataset)} 张")
+    return train_loader, val_loader, test_loader
 
 
-# -------------------- 5. 损失函数 --------------------
+# -------------------- 5. 损失函数（使用 Tversky Loss） --------------------
 def get_criterion(config):
-    def dice_loss(pred, target, smooth=1e-6):
-        pred = torch.sigmoid(pred)
-        intersection = (pred * target).sum(dim=(2, 3))
-        union = pred.sum(dim=(2, 3)) + target.sum(dim=(2, 3))
-        return 1 - (2. * intersection + smooth) / (union + smooth)
+    """
+    返回损失函数：单输出使用 tversky_loss，深监督模式对各输出求和。
+    注意：tversky_loss 期望 pred 和 target 形状一致，内部会做 sigmoid。
+    """
 
-    def bce_loss(pred, target):
-        pos_weight = torch.tensor([config.pos_weight]).to(pred.device)
-        return F.binary_cross_entropy_with_logits(pred, target, pos_weight=pos_weight)
-
+    # 定义单输出损失
     def single_loss(pred, target):
+        # 上采样预测到 target 尺寸
         if pred.shape[-2:] != target.shape[-2:]:
             pred = F.interpolate(pred, size=target.shape[-2:], mode='bilinear', align_corners=True)
-        return bce_loss(pred, target) + dice_loss(pred, target).mean()
+        return tversky_loss(pred, target, alpha=0.2, beta=0.8)  # 假设 tversky_loss 接受 alpha, beta
 
     if config.use_deep_supervision:
         def deep_supervision_loss(preds, target):
             total = 0.0
             for pred in preds:
                 total += single_loss(pred, target)
-            return total  # 不加权，直接求和
+            return total  # 不加权求和
+
         return deep_supervision_loss
     else:
         return single_loss
@@ -296,10 +313,13 @@ def train_one_epoch(model, loader, optimizer, criterion, device, scaler, config)
     return total_loss / len(loader)
 
 
+# ===================== 评估函数（含 Dice, IoU, HD95）=====================
 def evaluate(model, loader, device):
     model.eval()
     dice_metric = DiceMetric(include_background=True, reduction="mean")
     hd_metric = HausdorffDistanceMetric(percentile=95, include_background=True, reduction="mean")
+    iou_list = []
+
     with torch.no_grad():
         for imgs, masks in tqdm(loader, desc='Evaluating'):
             imgs, masks = imgs.to(device), masks.to(device)
@@ -308,23 +328,32 @@ def evaluate(model, loader, device):
                 preds = preds[-1]
             preds = torch.sigmoid(preds) > 0.5
             preds = preds.float()
+
             dice_metric(preds, masks)
             hd_metric(preds, masks)
+
+            # 手动计算 IoU（兼容所有版本）
+            intersection = (preds * masks).sum(dim=(1, 2, 3))
+            union = preds.sum(dim=(1, 2, 3)) + masks.sum(dim=(1, 2, 3)) - intersection
+            iou_batch = (intersection + 1e-6) / (union + 1e-6)
+            iou_list.extend(iou_batch.cpu().numpy())
+
     dice = dice_metric.aggregate().item()
     hd95 = hd_metric.aggregate().item()
+    iou = np.mean(iou_list)
     dice_metric.reset()
     hd_metric.reset()
-    return dice, hd95
+    return dice, iou, hd95
 
 
-# -------------------- 7. 运行单个实验 --------------------
-def run_experiment(exp_id, train_csv, val_csv):
+# -------------------- 7. 运行单个实验（返回配置和模型） --------------------
+def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
     config = ExperimentConfig(exp_id)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"\n{'=' * 50}\n运行 {config.name} (ID: {exp_id})\n{'=' * 50}")
     print(f"配置: {config.__dict__}")
 
-    train_loader, val_loader = get_dataloaders(config, train_csv, val_csv)
+    train_loader, val_loader, _ = get_dataloaders(config, train_csv, val_csv, test_csv)
 
     model = build_model(config).to(device)
     optimizer = Adam(model.parameters(), lr=config.lr)
@@ -332,33 +361,57 @@ def run_experiment(exp_id, train_csv, val_csv):
     scaler = GradScaler(enabled=config.use_amp)
 
     best_dice = 0.0
+    best_iou = 0.0
     best_hd95 = float('inf')
     for epoch in range(1, config.epochs + 1):
         print(f"\nEpoch {epoch}/{config.epochs}")
         train_loss = train_one_epoch(model, train_loader, optimizer, criterion, device, scaler, config)
-        dice, hd95 = evaluate(model, val_loader, device)
-        print(f"Train Loss: {train_loss:.4f} | Val Dice: {dice:.4f} | Val HD95: {hd95:.4f}")
+        dice, iou, hd95 = evaluate(model, val_loader, device)
+        print(f"Train Loss: {train_loss:.4f} | Val Dice: {dice:.4f} | IoU: {iou:.4f} | HD95: {hd95:.4f}")
         if dice > best_dice:
             best_dice = dice
+            best_iou = iou
             best_hd95 = hd95
             torch.save(model.state_dict(), f"exp_{exp_id}_best.pth")
 
-    print(f"\n✅ {exp_id} 最佳: Dice={best_dice:.4f}, HD95={best_hd95:.4f}")
-    return best_dice, best_hd95
+    print(f"\n✅ {exp_id} 最佳: Dice={best_dice:.4f}, IoU={best_iou:.4f}, HD95={best_hd95:.4f}")
+    # 返回配置和训练结束时模型（实际上最佳模型已保存，测试时重新加载）
+    return config
 
 
-# -------------------- 8. 主入口 --------------------
+# -------------------- 8. 测试函数 --------------------
+def test_model(exp_id, config, test_loader, device):
+    """
+    加载 exp_id 的最佳模型权重并在测试集上评估
+    """
+    model = build_model(config).to(device)
+    weight_path = f"exp_{exp_id}_best.pth"
+    if not os.path.exists(weight_path):
+        print(f"权重文件 {weight_path} 不存在，跳过测试")
+        return None
+
+    model.load_state_dict(torch.load(weight_path, map_location=device))
+    dice, iou, hd95 = evaluate(model, test_loader, device)
+    print(f"  {config.name} 测试结果: Dice={dice:.4f}, IoU={iou:.4f}, HD95={hd95:.4f}")
+    return {'Dice': dice, 'IoU': iou, 'HD95': hd95}
+
+
+# -------------------- 9. 主入口 --------------------
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="消融实验 A, B, C (包装核心模型)")
     parser.add_argument('--mode', type=str, default='full', choices=['test', 'full'],
-                        help='test: 只跑A和C(2个epoch验证代码); full: 跑全部三个实验')
+                        help='test: 只跑A和C(2个epoch快速验证); full: 跑全部三个实验')
     parser.add_argument('--train_csv', type=str, default=TRAIN_CSV,
-                        help='训练集CSV文件路径 (默认使用顶部定义的TRAIN_CSV)')
+                        help='训练集CSV文件路径')
     parser.add_argument('--val_csv', type=str, default=VAL_CSV,
-                        help='验证集CSV文件路径 (默认使用顶部定义的VAL_CSV)')
+                        help='验证集CSV文件路径')
+    parser.add_argument('--test_csv', type=str, default=TEST_CSV,
+                        help='测试集CSV文件路径')
     args = parser.parse_args()
+
+    test_exists = os.path.exists(args.test_csv)
 
     if args.mode == 'test':
         experiments = ['A', 'C']
@@ -369,14 +422,41 @@ if __name__ == "__main__":
         print("\n 完整消融模式：运行 A, B, C 三个实验 (30 epochs)")
         ExperimentConfig.epochs = 30
 
-    results = {}
-    for exp in experiments:
-        dice, hd95 = run_experiment(exp, args.train_csv, args.val_csv)
-        results[exp] = {'Dice': dice, 'HD95': hd95}
+    # 存储每个实验的配置
+    exp_configs = {}
 
-    print("\n" + "=" * 60)
-    print(" 消融实验结果汇总")
-    print("=" * 60)
-    print(f"{'实验':<10} {'Dice ↑':<15} {'HD95 ↓':<15}")
-    for exp, metrics in results.items():
-        print(f"{exp:<10} {metrics['Dice']:.4f}         {metrics['HD95']:.4f}")
+    # 训练实验
+    for exp in experiments:
+        config = run_experiment(exp, args.train_csv, args.val_csv, args.test_csv)
+        exp_configs[exp] = config
+
+    # ========== 测试集评估 ==========
+    if test_exists:
+        print("\n" + "=" * 60)
+        print(" 开始测试集评估（加载最佳模型权重）")
+        print("=" * 60)
+
+        # 构建测试集加载器
+        first_exp = experiments[0]
+        config_first = exp_configs[first_exp]
+        _, _, test_loader = get_dataloaders(config_first, args.train_csv, args.val_csv, args.test_csv)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        test_results = {}
+        for exp_id in experiments:
+            config = exp_configs[exp_id]
+            result = test_model(exp_id, config, test_loader, device)
+            if result is not None:
+                test_results[exp_id] = result
+
+        if test_results:
+            print("\n" + "=" * 60)
+            print(" 测试集结果汇总")
+            print("=" * 60)
+            print(f"{'实验':<10} {'Dice ↑':<12} {'IoU ↑':<12} {'HD95 ↓':<12}")
+            for exp, metrics in test_results.items():
+                print(f"{exp:<10} {metrics['Dice']:.4f}     {metrics['IoU']:.4f}     {metrics['HD95']:.4f}")
+        else:
+            print("\n 无有效测试结果（可能是权重文件缺失）")
+    else:
+        print("\n 测试集文件不存在，跳过测试集评估")
