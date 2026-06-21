@@ -24,7 +24,6 @@ from torch.utils.data import Dataset, DataLoader
 from torch.optim import Adam
 from torch.cuda.amp import GradScaler
 from tqdm import tqdm
-from monai.metrics import DiceMetric, HausdorffDistanceMetric
 from PIL import Image
 
 # =========================== 请修改以下配置 ===========================
@@ -34,12 +33,11 @@ from models.ours import OurBreastCancerNet as CoreModel
 # 2. 数据集路径
 TRAIN_CSV = 'preprocess/train.csv'
 VAL_CSV = 'preprocess/val.csv'
-TEST_CSV = 'preprocess/test.csv'  # 新增：测试集路径
+TEST_CSV = 'preprocess/test.csv'  # 测试集路径
 
-# 3. 导入损失函数
+# 3. 导入损失函数和评估指标
 from loss import tversky_loss
-
-
+from evaluate.eval import SegmentationMetrics
 # =====================================================================
 
 # -------------------- 包装类  --------------------
@@ -71,6 +69,7 @@ class AblationWrapper(nn.Module):
 # -------------------- 1. 配置类 --------------------
 class ExperimentConfig:
     def __init__(self, exp_id):
+        # 模型参数：单通道输出（二值分割）
         self.num_classes = 1
         self.img_size = 256
         self.epochs = 30
@@ -127,7 +126,7 @@ def build_model(config):
     core = CoreModel(
         model_name='efficientnet_b0',
         pretrained=True,  # 正式实验必须为 True
-        num_classes=config.num_classes
+        num_classes=config.num_classes  # 此时为 1
     )
     wrapper = AblationWrapper(
         core,
@@ -272,7 +271,7 @@ def get_criterion(config):
         # 上采样预测到 target 尺寸
         if pred.shape[-2:] != target.shape[-2:]:
             pred = F.interpolate(pred, size=target.shape[-2:], mode='bilinear', align_corners=True)
-        return tversky_loss(pred, target, alpha=0.2, beta=0.8)  # 假设 tversky_loss 接受 alpha, beta
+        return tversky_loss(pred, target, alpha=0.2, beta=0.8)
 
     if config.use_deep_supervision:
         def deep_supervision_loss(preds, target):
@@ -313,40 +312,42 @@ def train_one_epoch(model, loader, optimizer, criterion, device, scaler, config)
     return total_loss / len(loader)
 
 
-# ===================== 评估函数（含 Dice, IoU, HD95）=====================
+# ===================== 评估函数（使用 SegmentationMetrics）=====================
 def evaluate(model, loader, device):
+    """
+    使用 SegmentationMetrics 计算 Dice、IoU 和 HD95
+    """
     model.eval()
-    dice_metric = DiceMetric(include_background=True, reduction="mean")
-    hd_metric = HausdorffDistanceMetric(percentile=95, include_background=True, reduction="mean")
-    iou_list = []
+    # 实例化评估指标对象（二分类：背景+前景，故 num_classes=2）
+    metrics = SegmentationMetrics(num_classes=2, pixel_spacing=(1.0, 1.0))
 
     with torch.no_grad():
         for imgs, masks in tqdm(loader, desc='Evaluating'):
             imgs, masks = imgs.to(device), masks.to(device)
             preds = model(imgs)
+            # 如果是深监督，取最后一个输出
             if isinstance(preds, list):
                 preds = preds[-1]
-            preds = torch.sigmoid(preds) > 0.5
-            preds = preds.float()
+            # 转为二值预测 (B, 1, H, W) -> (B, H, W)
+            preds = (torch.sigmoid(preds) > 0.5).squeeze(1).long()
+            # 真值 (B, 1, H, W) -> (B, H, W)
+            masks = masks.squeeze(1).long()
 
-            dice_metric(preds, masks)
-            hd_metric(preds, masks)
+            # 逐样本更新指标（确保输入为 numpy 数组，类型为 uint8）
+            for i in range(preds.shape[0]):
+                pred_np = preds[i].cpu().numpy().astype(np.uint8)
+                mask_np = masks[i].cpu().numpy().astype(np.uint8)
+                metrics.update_with_boundary(pred_np, mask_np)
 
-            # 手动计算 IoU（兼容所有版本）
-            intersection = (preds * masks).sum(dim=(1, 2, 3))
-            union = preds.sum(dim=(1, 2, 3)) + masks.sum(dim=(1, 2, 3)) - intersection
-            iou_batch = (intersection + 1e-6) / (union + 1e-6)
-            iou_list.extend(iou_batch.cpu().numpy())
-
-    dice = dice_metric.aggregate().item()
-    hd95 = hd_metric.aggregate().item()
-    iou = np.mean(iou_list)
-    dice_metric.reset()
-    hd_metric.reset()
+    scores = metrics.get_scores()
+    dice = scores['dice']
+    iou = scores['iou']
+    hd95 = scores['hd95_mean']
     return dice, iou, hd95
+# =====================================================================
 
 
-# -------------------- 7. 运行单个实验（返回配置和模型） --------------------
+# -------------------- 7. 运行单个实验（返回配置） --------------------
 def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
     config = ExperimentConfig(exp_id)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -375,7 +376,6 @@ def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
             torch.save(model.state_dict(), f"exp_{exp_id}_best.pth")
 
     print(f"\n✅ {exp_id} 最佳: Dice={best_dice:.4f}, IoU={best_iou:.4f}, HD95={best_hd95:.4f}")
-    # 返回配置和训练结束时模型（实际上最佳模型已保存，测试时重新加载）
     return config
 
 
