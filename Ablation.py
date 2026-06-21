@@ -21,8 +21,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from torch.optim import Adam, AdamW
-from torch.optim.lr_scheduler import CosineAnnealingLR  # 新增
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.cuda.amp import GradScaler
 from tqdm import tqdm
 from PIL import Image
@@ -51,7 +51,6 @@ class AblationWrapper(nn.Module):
         super().__init__()
         self.core = core_model
 
-        # 条件替换为恒等映射
         if not use_ppm:
             self.core.ppm = nn.Identity()
         if not use_cbam:
@@ -60,11 +59,11 @@ class AblationWrapper(nn.Module):
         self.use_deep_supervision = use_deep_supervision
 
     def forward(self, x):
-        outputs = self.core(x)  # 核心模型始终返回列表 (4个预测)
+        outputs = self.core(x)
         if self.use_deep_supervision:
-            return outputs  # 返回所有
+            return outputs
         else:
-            return outputs[-1]  # 仅最高分辨率
+            return outputs[-1]
 
 
 # -------------------- 1. 配置类 --------------------
@@ -73,21 +72,20 @@ class ExperimentConfig:
         # 模型参数：单通道输出（二值分割）
         self.num_classes = 1
         self.img_size = 256
-        self.epochs = 100          # 与 train.py 一致
+        self.epochs = 100          # 默认值，实际会由 run_experiment 覆盖
         self.batch_size = 8
-        self.lr = 1e-4             # 与 train.py 一致
-        self.weight_decay = 1e-4   # 与 train.py 一致
+        self.lr = 1e-4
+        self.weight_decay = 1e-4
         self.seed = 42
         self.num_workers = 4
         self.pin_memory = True
         self.use_amp = True
         self.grad_accum_steps = 1
 
-        # 消融开关
         self.use_ppm = False
         self.use_cbam = False
         self.use_deep_supervision = False
-        self.pos_weight = 1.0  # 仅保留占位，tversky 不使用
+        self.pos_weight = 1.0  # 占位
 
         self._set_experiment(exp_id)
         self.exp_name = exp_id
@@ -123,12 +121,12 @@ class ExperimentConfig:
         torch.backends.cudnn.benchmark = False
 
 
-# -------------------- 2. 模型构建 (包装核心模型) --------------------
+# -------------------- 2. 模型构建 --------------------
 def build_model(config):
     core = CoreModel(
         model_name='efficientnet_b0',
-        pretrained=True,  # 正式实验必须为 True
-        num_classes=config.num_classes  # 此时为 1
+        pretrained=True,
+        num_classes=config.num_classes
     )
     wrapper = AblationWrapper(
         core,
@@ -139,7 +137,7 @@ def build_model(config):
     return wrapper
 
 
-# -------------------- 3. CSV数据集 (已修正列名匹配) --------------------
+# -------------------- 3. CSV数据集 --------------------
 class CSVMedicalDataset(Dataset):
     def __init__(self, csv_path, img_size=256):
         self.img_size = img_size
@@ -155,14 +153,12 @@ class CSVMedicalDataset(Dataset):
             header_clean = [col.strip() for col in header]
             print(f" 检测到列名: {header_clean}")
 
-            # ---- 修正：添加 'img_path' 和 'mask_path' 到匹配列表 ----
             img_idx = mask_idx = None
             for idx, name in enumerate(header_clean):
                 if name.lower() in ['image_path', 'img_path', 'img', 'image', 'file_path', 'filename']:
                     img_idx = idx
                 if name.lower() in ['mask_path', 'mask', 'label', 'seg', 'gt']:
                     mask_idx = idx
-            # ---------------------------------------------------------
 
             if img_idx is None:
                 img_idx = 0
@@ -191,7 +187,6 @@ class CSVMedicalDataset(Dataset):
     def __getitem__(self, idx):
         img_path, mask_path = self.samples[idx]
 
-        # 读取图像
         if img_path.endswith('.npy'):
             image = np.load(img_path).astype(np.float32)
             if len(image.shape) == 2:
@@ -203,7 +198,6 @@ class CSVMedicalDataset(Dataset):
             image = Image.open(img_path).convert('RGB')
             image = torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / 255.0
 
-        # 读取掩码
         if mask_path.endswith('.npy'):
             mask = np.load(mask_path).astype(np.float32)
             if len(mask.shape) == 3:
@@ -213,7 +207,6 @@ class CSVMedicalDataset(Dataset):
             mask = Image.open(mask_path).convert('L')
             mask = torch.from_numpy(np.array(mask)).float().unsqueeze(0) / 255.0
 
-        # Resize 到统一尺寸
         if image.shape[1] != self.img_size or image.shape[2] != self.img_size:
             image = F.interpolate(image.unsqueeze(0), size=(self.img_size, self.img_size),
                                   mode='bilinear').squeeze(0)
@@ -252,7 +245,7 @@ def get_dataloaders(config, train_csv, val_csv, test_csv=None):
         test_dataset = CSVMedicalDataset(test_csv, img_size=config.img_size)
         test_loader = DataLoader(
             test_dataset,
-            batch_size=1,  # 测试时 batch_size=1 更精确计算 HD95
+            batch_size=1,
             shuffle=False,
             num_workers=0,
             pin_memory=False
@@ -261,16 +254,9 @@ def get_dataloaders(config, train_csv, val_csv, test_csv=None):
     return train_loader, val_loader, test_loader
 
 
-# -------------------- 5. 损失函数（使用 Tversky Loss） --------------------
+# -------------------- 5. 损失函数 --------------------
 def get_criterion(config):
-    """
-    返回损失函数：单输出使用 tversky_loss，深监督模式对各输出求和。
-    注意：tversky_loss 期望 pred 和 target 形状一致，内部会做 sigmoid。
-    """
-
-    # 定义单输出损失
     def single_loss(pred, target):
-        # 上采样预测到 target 尺寸
         if pred.shape[-2:] != target.shape[-2:]:
             pred = F.interpolate(pred, size=target.shape[-2:], mode='bilinear', align_corners=True)
         return tversky_loss(pred, target, alpha=0.2, beta=0.8)
@@ -280,8 +266,7 @@ def get_criterion(config):
             total = 0.0
             for pred in preds:
                 total += single_loss(pred, target)
-            return total  # 不加权求和
-
+            return total
         return deep_supervision_loss
     else:
         return single_loss
@@ -314,33 +299,24 @@ def train_one_epoch(model, loader, optimizer, criterion, device, scaler, config)
     return total_loss / len(loader)
 
 
-# ===================== 评估函数（使用 SegmentationMetrics）=====================
 def evaluate(model, loader, device):
-    """
-    使用 SegmentationMetrics 计算 Dice、IoU 和 HD95
-    """
     model.eval()
-    # 实例化评估指标对象（二分类：背景+前景，故 num_classes=2）
     metrics = SegmentationMetrics(num_classes=2, pixel_spacing=(1.0, 1.0))
 
     with torch.no_grad():
         for imgs, masks in tqdm(loader, desc='Evaluating'):
             imgs, masks = imgs.to(device), masks.to(device)
             preds = model(imgs)
-            # 如果是深监督，取最后一个输出
             if isinstance(preds, list):
                 preds = preds[-1]
 
-            #上采样预测到与掩码相同的空间尺寸
+            # 上采样到与掩码相同尺寸
             if preds.shape[-2:] != masks.shape[-2:]:
                 preds = F.interpolate(preds, size=masks.shape[-2:], mode='bilinear', align_corners=True)
-           
-            # 转为二值预测 (B, 1, H, W) -> (B, H, W)
+
             preds = (torch.sigmoid(preds) > 0.5).squeeze(1).long()
-            # 真值 (B, 1, H, W) -> (B, H, W)
             masks = masks.squeeze(1).long()
 
-            # 逐样本更新指标（确保输入为 numpy 数组，类型为 uint8）
             for i in range(preds.shape[0]):
                 pred_np = preds[i].cpu().numpy().astype(np.uint8)
                 mask_np = masks[i].cpu().numpy().astype(np.uint8)
@@ -351,12 +327,24 @@ def evaluate(model, loader, device):
     iou = scores['iou']
     hd95 = scores['hd95_mean']
     return dice, iou, hd95
-# =====================================================================
 
 
-# -------------------- 7. 运行单个实验（返回配置） --------------------
-def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
+# -------------------- 7. 运行单个实验（可指定 epochs） --------------------
+def run_experiment(exp_id, train_csv, val_csv, test_csv=None, epochs=None):
+    """
+    运行单个消融实验
+    Args:
+        exp_id: 实验标识 'A', 'B', 'C'
+        train_csv: 训练集CSV路径
+        val_csv: 验证集CSV路径
+        test_csv: 测试集CSV路径（可选）
+        epochs: 训练轮数，若为 None 则使用 config.epochs 默认值（100）
+    """
     config = ExperimentConfig(exp_id)
+    # 如果传入了 epochs，则覆盖配置中的值
+    if epochs is not None:
+        config.epochs = epochs
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"\n{'=' * 50}\n运行 {config.name} (ID: {exp_id})\n{'=' * 50}")
     print(f"配置: {config.__dict__}")
@@ -365,9 +353,8 @@ def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
 
     model = build_model(config).to(device)
 
-    # ---- 修改：使用 AdamW 优化器（与 train.py 一致） ----
+    # 优化器与调度器（T_max 使用实际的 epochs）
     optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
-    # ---- 新增：余弦退火学习率调度器 ----
     scheduler = CosineAnnealingLR(optimizer, T_max=config.epochs, eta_min=1e-6)
 
     criterion = get_criterion(config)
@@ -387,7 +374,6 @@ def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
             best_hd95 = hd95
             torch.save(model.state_dict(), f"exp_{exp_id}_best.pth")
 
-        # ---- 每 epoch 后更新学习率 ----
         scheduler.step()
 
     print(f"\n✅ {exp_id} 最佳: Dice={best_dice:.4f}, IoU={best_iou:.4f}, HD95={best_hd95:.4f}")
@@ -396,9 +382,6 @@ def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
 
 # -------------------- 8. 测试函数 --------------------
 def test_model(exp_id, config, test_loader, device):
-    """
-    加载 exp_id 的最佳模型权重并在测试集上评估
-    """
     model = build_model(config).to(device)
     weight_path = f"exp_{exp_id}_best.pth"
     if not os.path.exists(weight_path):
@@ -417,7 +400,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="消融实验 A, B, C (包装核心模型)")
     parser.add_argument('--mode', type=str, default='full', choices=['test', 'full'],
-                        help='test: 只跑A和C(2个epoch快速验证); full: 跑全部三个实验')
+                        help='test: 只跑A和C(2个epoch快速验证); full: 跑全部三个实验(100 epochs)')
     parser.add_argument('--train_csv', type=str, default=TRAIN_CSV,
                         help='训练集CSV文件路径')
     parser.add_argument('--val_csv', type=str, default=VAL_CSV,
@@ -428,22 +411,22 @@ if __name__ == "__main__":
 
     test_exists = os.path.exists(args.test_csv)
 
+    # 根据模式决定实验列表和轮数
     if args.mode == 'test':
         experiments = ['A', 'C']
-        print("\n 冒烟测试模式：只跑 A 和 C (各2个epoch快速验证)")
-        # 冒烟测试时轮数太少，调度器作用不大，但仍保持一致
-        ExperimentConfig.epochs = 2
+        epochs = 2
+        print("\n🧪 冒烟测试模式：只跑 A 和 C (各2个epoch快速验证)")
     else:
         experiments = ['A', 'B', 'C']
-        print("\n 完整消融模式：运行 A, B, C 三个实验 (100 epochs)")
-        ExperimentConfig.epochs = 100
+        epochs = 100
+        print("\n🚀 完整消融模式：运行 A, B, C 三个实验 (100 epochs)")
 
     # 存储每个实验的配置
     exp_configs = {}
 
-    # 训练实验
+    # 训练实验（传入 epochs 参数）
     for exp in experiments:
-        config = run_experiment(exp, args.train_csv, args.val_csv, args.test_csv)
+        config = run_experiment(exp, args.train_csv, args.val_csv, args.test_csv, epochs=epochs)
         exp_configs[exp] = config
 
     # ========== 测试集评估 ==========
@@ -452,7 +435,7 @@ if __name__ == "__main__":
         print(" 开始测试集评估（加载最佳模型权重）")
         print("=" * 60)
 
-        # 构建测试集加载器
+        # 构建测试集加载器（使用第一个实验的配置）
         first_exp = experiments[0]
         config_first = exp_configs[first_exp]
         _, _, test_loader = get_dataloaders(config_first, args.train_csv, args.val_csv, args.test_csv)
