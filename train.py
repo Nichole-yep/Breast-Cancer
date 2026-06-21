@@ -22,6 +22,10 @@ def train_and_validate():
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f" 正在使用计算设备: {DEVICE}")
 
+    # ========================= 新增：创建预测结果保存目录 =========================
+    os.makedirs("results/val_preds", exist_ok=True)
+    # ============================================================================
+
     # 2. 调用 DataLoader
     print(" 正在加载真实数据集...")
     train_loader, val_loader, test_loader = get_loaders(
@@ -52,9 +56,6 @@ def train_and_validate():
             "train_loss",
             "val_dice",
             "val_iou",
-            "val_accuracy",
-            "val_sensitivity",
-            "val_specificity",
             "val_hd95_mean"
         ])
 
@@ -88,6 +89,7 @@ def train_and_validate():
     val_hd95s = []
 
     # 4. 训练与验证大循环
+    print("初始 best_val_dice:", best_val_dice)
     for epoch in range(EPOCHS):
         # 训练阶段 
         model.train() 
@@ -110,6 +112,11 @@ def train_and_validate():
         # 验证阶段 
         model.eval()
         val_metrics = SegmentationMetrics(num_classes=2)
+
+        # ========================= 新增：保存逐样本预测 =========================
+        epoch_preds = []
+        epoch_masks = []
+        # ========================================================================
         
         with torch.no_grad():
             val_bar = tqdm(val_loader, desc=f"Epoch [{epoch+1}/{EPOCHS}] Val  ")
@@ -133,9 +140,26 @@ def train_and_validate():
                 # 逐样本更新
                 for i in range(images.size(0)): 
                     val_metrics.update_with_boundary(final_pred_binary[i], masks_np[i])
+
+                    # ========================= 新增：保存预测 =========================
+                    epoch_preds.append(final_pred_binary[i])
+                    epoch_masks.append(masks_np[i])
+                    # ================================================================
                     
         # 获取本 Epoch 的分数
         scores = val_metrics.get_scores()
+
+        # ========================= 新增：保存 epoch 预测结果 =========================
+        np.save(
+            f"results/val_preds/epoch_{epoch+1}_preds.npy",
+            np.array(epoch_preds, dtype=np.uint8)
+        )
+        np.save(
+            f"results/val_preds/epoch_{epoch+1}_masks.npy",
+            np.array(epoch_masks, dtype=np.uint8)
+        )
+        # ==========================================================================
+
         val_dice = scores['dice']
         val_iou = scores['iou']
         val_hd95 = scores['hd95_mean']
@@ -148,22 +172,6 @@ def train_and_validate():
         print(f" Epoch [{epoch+1}] 成绩单 | Train Loss: {avg_train_loss:.4f}")
         print(f" 验证集表现 -> Dice: {val_dice:.4f} | IoU: {val_iou:.4f} | HD95: {val_hd95:.2f} 像素")
 
-    # ========================= 新增：写 CSV 日志 =========================
-    with open(csv_log_path, "a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            epoch + 1,
-            f"{avg_train_loss:.6f}",
-            f"{val_dice:.6f}",
-            f"{val_iou:.6f}",
-            f"{scores['accuracy']:.6f}",
-            f"{scores['sensitivity']:.6f}",
-            f"{scores['specificity']:.6f}",
-            f"{val_hd95:.6f}"
-        ])
-    # ================================================================
-
-
         # 保存最佳模型
         if val_dice > best_val_dice:
             best_val_dice = val_dice
@@ -173,6 +181,18 @@ def train_and_validate():
         else:
             print("\n")
         scheduler.step()
+        
+        # ========================= 新增：写 CSV 日志 =========================
+        with open(csv_log_path, "a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+            epoch + 1,
+                f"{avg_train_loss:.6f}",
+                f"{val_dice:.6f}",
+                f"{val_iou:.6f}",
+                f"{val_hd95:.6f}"
+            ])
+        # ================================================================
     
     # 新增：绘制训练曲线
     print("\n 正在生成训练曲线图...")
