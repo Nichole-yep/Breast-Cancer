@@ -312,7 +312,7 @@ def train_one_epoch(model, loader, optimizer, criterion, device, scaler, config)
     return total_loss / len(loader)
 
 
-# ===================== 评估函数（使用 SegmentationMetrics）=====================
+# ===================== 评估函数（添加上采样）======================
 def evaluate(model, loader, device):
     """
     使用 SegmentationMetrics 计算 Dice、IoU 和 HD95
@@ -328,6 +328,9 @@ def evaluate(model, loader, device):
             # 如果是深监督，取最后一个输出
             if isinstance(preds, list):
                 preds = preds[-1]
+            # 上采样预测到与掩码相同的空间尺寸
+            if preds.shape[-2:] != masks.shape[-2:]:
+                preds = F.interpolate(preds, size=masks.shape[-2:], mode='bilinear', align_corners=True)
             # 转为二值预测 (B, 1, H, W) -> (B, H, W)
             preds = (torch.sigmoid(preds) > 0.5).squeeze(1).long()
             # 真值 (B, 1, H, W) -> (B, H, W)
