@@ -21,7 +21,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from torch.optim import Adam
+from torch.optim import Adam, AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR  # 新增
 from torch.cuda.amp import GradScaler
 from tqdm import tqdm
 from PIL import Image
@@ -72,9 +73,10 @@ class ExperimentConfig:
         # 模型参数：单通道输出（二值分割）
         self.num_classes = 1
         self.img_size = 256
-        self.epochs = 30
+        self.epochs = 100          # 与 train.py 一致
         self.batch_size = 8
-        self.lr = 0.001
+        self.lr = 1e-4             # 与 train.py 一致
+        self.weight_decay = 1e-4   # 与 train.py 一致
         self.seed = 42
         self.num_workers = 4
         self.pin_memory = True
@@ -312,7 +314,7 @@ def train_one_epoch(model, loader, optimizer, criterion, device, scaler, config)
     return total_loss / len(loader)
 
 
-# ===================== 评估函数（添加上采样）======================
+# ===================== 评估函数（使用 SegmentationMetrics）=====================
 def evaluate(model, loader, device):
     """
     使用 SegmentationMetrics 计算 Dice、IoU 和 HD95
@@ -328,9 +330,11 @@ def evaluate(model, loader, device):
             # 如果是深监督，取最后一个输出
             if isinstance(preds, list):
                 preds = preds[-1]
-            # 上采样预测到与掩码相同的空间尺寸
+
+            #上采样预测到与掩码相同的空间尺寸
             if preds.shape[-2:] != masks.shape[-2:]:
                 preds = F.interpolate(preds, size=masks.shape[-2:], mode='bilinear', align_corners=True)
+           
             # 转为二值预测 (B, 1, H, W) -> (B, H, W)
             preds = (torch.sigmoid(preds) > 0.5).squeeze(1).long()
             # 真值 (B, 1, H, W) -> (B, H, W)
@@ -360,7 +364,12 @@ def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
     train_loader, val_loader, _ = get_dataloaders(config, train_csv, val_csv, test_csv)
 
     model = build_model(config).to(device)
-    optimizer = Adam(model.parameters(), lr=config.lr)
+
+    # ---- 修改：使用 AdamW 优化器（与 train.py 一致） ----
+    optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
+    # ---- 新增：余弦退火学习率调度器 ----
+    scheduler = CosineAnnealingLR(optimizer, T_max=config.epochs, eta_min=1e-6)
+
     criterion = get_criterion(config)
     scaler = GradScaler(enabled=config.use_amp)
 
@@ -377,6 +386,9 @@ def run_experiment(exp_id, train_csv, val_csv, test_csv=None):
             best_iou = iou
             best_hd95 = hd95
             torch.save(model.state_dict(), f"exp_{exp_id}_best.pth")
+
+        # ---- 每 epoch 后更新学习率 ----
+        scheduler.step()
 
     print(f"\n✅ {exp_id} 最佳: Dice={best_dice:.4f}, IoU={best_iou:.4f}, HD95={best_hd95:.4f}")
     return config
@@ -419,11 +431,12 @@ if __name__ == "__main__":
     if args.mode == 'test':
         experiments = ['A', 'C']
         print("\n 冒烟测试模式：只跑 A 和 C (各2个epoch快速验证)")
+        # 冒烟测试时轮数太少，调度器作用不大，但仍保持一致
         ExperimentConfig.epochs = 2
     else:
         experiments = ['A', 'B', 'C']
-        print("\n 完整消融模式：运行 A, B, C 三个实验 (30 epochs)")
-        ExperimentConfig.epochs = 30
+        print("\n 完整消融模式：运行 A, B, C 三个实验 (100 epochs)")
+        ExperimentConfig.epochs = 100
 
     # 存储每个实验的配置
     exp_configs = {}
