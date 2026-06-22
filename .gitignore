@@ -36,7 +36,7 @@ wandb/"test.py"
 # =========================
 # Local BUSI dataset - do not upload
 # =========================
-Dataset_BUSI_with_GT/
+comparison/Dataset_BUSI_with_GT/
 
 # =========================
 # Training outputs - do not upload large weights
