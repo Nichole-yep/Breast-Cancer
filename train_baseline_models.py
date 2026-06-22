@@ -30,6 +30,7 @@ from tqdm import tqdm
 from preprocess.dataset import get_loaders
 from evaluate.eval import SegmentationMetrics
 from models.baseline_models import get_baseline_model
+from baseline_loss import BCETverskyLoss
 
 
 def extract_logits(model_output):
@@ -74,7 +75,7 @@ def dice_loss_from_logits(logits, targets, eps=1e-7):
     return 1.0 - dice.mean()
 
 
-def combined_bce_dice_loss(logits, targets):
+#def combined_bce_dice_loss(logits, targets):
     """
     Fair simple baseline loss: 0.5 * BCE + 0.5 * Dice.
 
@@ -159,6 +160,12 @@ def train_one_model(args):
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=args.min_lr)
 
+    criterion = BCETverskyLoss(
+        pos_weight=15.0,
+        alpha=0.2,
+        beta=0.8
+    )
+
     best_dice = -1.0
     best_path = os.path.join(args.save_dir, f"best_{args.model}.pth")
     last_path = os.path.join(args.save_dir, f"last_{args.model}.pth")
@@ -191,7 +198,9 @@ def train_one_model(args):
             if logits.shape[-2:] != masks.shape[-2:]:
                 logits = F.interpolate(logits, size=masks.shape[-2:], mode="bilinear", align_corners=False)
 
-            loss = combined_bce_dice_loss(logits, masks)
+
+            loss = criterion(logits, masks)
+
             loss.backward()
             optimizer.step()
 

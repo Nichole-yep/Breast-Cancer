@@ -49,3 +49,8 @@ results/logs/
 # PyCharm local files
 # =========================
 .idea/
+.vscode/
+visualization/outputs/ours_pixel_roc_points.csv
+visualization/outputs/ours_pixel_pr_points.csv
+visualization/outputs.zip
+visualization_code_package/
