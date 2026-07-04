@@ -1,0 +1,2 @@
+model,dice,iou,miou,accuracy,precision,sensitivity,specificity,hd95_mean,hd95_std,valid_hd95_count,TP,FP,FN,TN
+deeplabv3plus,0.673686,0.507939,0.507939,0.927070,0.566604,0.830676,0.936677,78.562498,52.615022,98,483510,369838,98558,5470622
