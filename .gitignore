@@ -9,9 +9,7 @@ paper/
 # ==========================================
 *.pdf
 *.docx
-*.txt
 *.log
-*.png
 
 # ==========================================
 # 3. 标准的 Python 忽略项 (防止上传缓存和依赖)
@@ -43,7 +41,7 @@ comparison/Dataset_BUSI_with_GT/
 # =========================
 results/weights/
 results/logs/
-*.pth
+
 
 # =========================
 # PyCharm local files
