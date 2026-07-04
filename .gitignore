@@ -33,3 +33,25 @@ venv/
 runs/
 logs/
 wandb/"test.py" 
+# =========================
+# Local BUSI dataset - do not upload
+# =========================
+comparison/Dataset_BUSI_with_GT/
+
+# =========================
+# Training outputs - do not upload large weights
+# =========================
+results/weights/
+results/logs/
+*.pth
+
+# =========================
+# PyCharm local files
+# =========================
+.idea/
+.vscode/
+visualization/outputs/ours_pixel_roc_points.csv
+visualization/outputs/ours_pixel_pr_points.csv
+visualization/outputs.zip
+visualization_code_package/
+
