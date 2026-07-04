@@ -1,0 +1,2 @@
+model,dice,iou,miou,accuracy,precision,sensitivity,specificity,hd95_mean,hd95_std,valid_hd95_count,TP,FP,FN,TN
+unet,0.642147,0.472913,0.472913,0.915573,0.521342,0.835823,0.923521,73.401591,51.315869,97,486506,446675,95562,5393785

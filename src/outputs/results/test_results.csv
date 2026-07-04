@@ -1,0 +1,14 @@
+Metric,Value
+Dice,0.775163
+IoU,0.632870
+mIoU,0.632870
+Accuracy,0.957284
+Precision,0.741118
+Sensitivity,0.812486
+Specificity,0.971715
+HD95_Mean,29.725112
+Valid_HD95_Count,98
+TP,472922
+FP,165198
+FN,109146
+TN,5675262
