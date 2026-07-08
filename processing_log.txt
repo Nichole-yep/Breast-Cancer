@@ -1,0 +1,692 @@
+项目根目录: D:\PycharmProjects\Breast-Cancer
+CSV文件: D:\PycharmProjects\Breast-Cancer\src\data\test.csv
+输出目录(绝对路径): D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu, D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing
+
+
+[1/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (88).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (88).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (88).png
+  完成: malignant (88) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (88)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (88)_rg.png
+
+[2/98] 处理: Dataset_BUSI_with_GT\benign\benign (298).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (298).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (298).png
+  完成: benign (298) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (298)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (298)_rg.png
+
+[3/98] 处理: Dataset_BUSI_with_GT\benign\benign (9).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (9).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (9).png
+  完成: benign (9) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (9)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (9)_rg.png
+
+[4/98] 处理: Dataset_BUSI_with_GT\benign\benign (91).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (91).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (91).png
+  完成: benign (91) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (91)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (91)_rg.png
+
+[5/98] 处理: Dataset_BUSI_with_GT\benign\benign (164).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (164).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (164).png
+  完成: benign (164) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (164)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (164)_rg.png
+
+[6/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (1).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (1).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (1).png
+  完成: malignant (1) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (1)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (1)_rg.png
+
+[7/98] 处理: Dataset_BUSI_with_GT\benign\benign (262).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (262).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (262).png
+  完成: benign (262) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (262)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (262)_rg.png
+
+[8/98] 处理: Dataset_BUSI_with_GT\benign\benign (217).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (217).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (217).png
+  完成: benign (217) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (217)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (217)_rg.png
+
+[9/98] 处理: Dataset_BUSI_with_GT\benign\benign (307).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (307).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (307).png
+  完成: benign (307) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (307)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (307)_rg.png
+
+[10/98] 处理: Dataset_BUSI_with_GT\benign\benign (349).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (349).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (349).png
+  完成: benign (349) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (349)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (349)_rg.png
+
+[11/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (60).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (60).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (60).png
+  完成: malignant (60) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (60)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (60)_rg.png
+
+[12/98] 处理: Dataset_BUSI_with_GT\benign\benign (352).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (352).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (352).png
+  完成: benign (352) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (352)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (352)_rg.png
+
+[13/98] 处理: Dataset_BUSI_with_GT\benign\benign (323).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (323).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (323).png
+  完成: benign (323) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (323)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (323)_rg.png
+
+[14/98] 处理: Dataset_BUSI_with_GT\benign\benign (172).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (172).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (172).png
+  完成: benign (172) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (172)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (172)_rg.png
+
+[15/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (20).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (20).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (20).png
+  完成: malignant (20) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (20)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (20)_rg.png
+
+[16/98] 处理: Dataset_BUSI_with_GT\benign\benign (321).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (321).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (321).png
+  完成: benign (321) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (321)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (321)_rg.png
+
+[17/98] 处理: Dataset_BUSI_with_GT\benign\benign (425).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (425).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (425).png
+  完成: benign (425) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (425)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (425)_rg.png
+
+[18/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (23).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (23).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (23).png
+  完成: malignant (23) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (23)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (23)_rg.png
+
+[19/98] 处理: Dataset_BUSI_with_GT\benign\benign (161).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (161).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (161).png
+  完成: benign (161) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (161)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (161)_rg.png
+
+[20/98] 处理: Dataset_BUSI_with_GT\benign\benign (108).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (108).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (108).png
+  完成: benign (108) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (108)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (108)_rg.png
+
+[21/98] 处理: Dataset_BUSI_with_GT\benign\benign (405).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (405).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (405).png
+  完成: benign (405) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (405)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (405)_rg.png
+
+[22/98] 处理: Dataset_BUSI_with_GT\benign\benign (156).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (156).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (156).png
+  完成: benign (156) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (156)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (156)_rg.png
+
+[23/98] 处理: Dataset_BUSI_with_GT\benign\benign (406).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (406).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (406).png
+  完成: benign (406) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (406)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (406)_rg.png
+
+[24/98] 处理: Dataset_BUSI_with_GT\benign\benign (148).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (148).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (148).png
+  完成: benign (148) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (148)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (148)_rg.png
+
+[25/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (184).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (184).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (184).png
+  完成: malignant (184) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (184)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (184)_rg.png
+
+[26/98] 处理: Dataset_BUSI_with_GT\benign\benign (410).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (410).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (410).png
+  完成: benign (410) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (410)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (410)_rg.png
+
+[27/98] 处理: Dataset_BUSI_with_GT\benign\benign (259).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (259).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (259).png
+  完成: benign (259) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (259)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (259)_rg.png
+
+[28/98] 处理: Dataset_BUSI_with_GT\benign\benign (368).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (368).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (368).png
+  完成: benign (368) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (368)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (368)_rg.png
+
+[29/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (161).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (161).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (161).png
+  完成: malignant (161) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (161)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (161)_rg.png
+
+[30/98] 处理: Dataset_BUSI_with_GT\benign\benign (127).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (127).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (127).png
+  完成: benign (127) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (127)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (127)_rg.png
+
+[31/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (76).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (76).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (76).png
+  完成: malignant (76) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (76)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (76)_rg.png
+
+[32/98] 处理: Dataset_BUSI_with_GT\benign\benign (149).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (149).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (149).png
+  完成: benign (149) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (149)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (149)_rg.png
+
+[33/98] 处理: Dataset_BUSI_with_GT\benign\benign (256).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (256).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (256).png
+  完成: benign (256) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (256)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (256)_rg.png
+
+[34/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (135).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (135).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (135).png
+  完成: malignant (135) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (135)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (135)_rg.png
+
+[35/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (199).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (199).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (199).png
+  完成: malignant (199) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (199)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (199)_rg.png
+
+[36/98] 处理: Dataset_BUSI_with_GT\benign\benign (288).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (288).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (288).png
+  完成: benign (288) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (288)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (288)_rg.png
+
+[37/98] 处理: Dataset_BUSI_with_GT\benign\benign (199).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (199).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (199).png
+  完成: benign (199) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (199)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (199)_rg.png
+
+[38/98] 处理: Dataset_BUSI_with_GT\benign\benign (437).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (437).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (437).png
+  完成: benign (437) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (437)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (437)_rg.png
+
+[39/98] 处理: Dataset_BUSI_with_GT\benign\benign (289).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (289).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (289).png
+  完成: benign (289) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (289)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (289)_rg.png
+
+[40/98] 处理: Dataset_BUSI_with_GT\benign\benign (241).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (241).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (241).png
+  完成: benign (241) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (241)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (241)_rg.png
+
+[41/98] 处理: Dataset_BUSI_with_GT\benign\benign (248).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (248).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (248).png
+  完成: benign (248) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (248)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (248)_rg.png
+
+[42/98] 处理: Dataset_BUSI_with_GT\benign\benign (424).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (424).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (424).png
+  完成: benign (424) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (424)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (424)_rg.png
+
+[43/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (175).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (175).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (175).png
+  完成: malignant (175) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (175)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (175)_rg.png
+
+[44/98] 处理: Dataset_BUSI_with_GT\benign\benign (168).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (168).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (168).png
+  完成: benign (168) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (168)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (168)_rg.png
+
+[45/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (105).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (105).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (105).png
+  完成: malignant (105) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (105)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (105)_rg.png
+
+[46/98] 处理: Dataset_BUSI_with_GT\benign\benign (100).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (100).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (100).png
+  完成: benign (100) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (100)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (100)_rg.png
+
+[47/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (164).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (164).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (164).png
+  完成: malignant (164) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (164)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (164)_rg.png
+
+[48/98] 处理: Dataset_BUSI_with_GT\benign\benign (343).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (343).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (343).png
+  完成: benign (343) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (343)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (343)_rg.png
+
+[49/98] 处理: Dataset_BUSI_with_GT\benign\benign (362).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (362).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (362).png
+  完成: benign (362) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (362)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (362)_rg.png
+
+[50/98] 处理: Dataset_BUSI_with_GT\benign\benign (99).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (99).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (99).png
+  完成: benign (99) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (99)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (99)_rg.png
+
+[51/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (95).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (95).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (95).png
+  完成: malignant (95) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (95)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (95)_rg.png
+
+[52/98] 处理: Dataset_BUSI_with_GT\benign\benign (180).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (180).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (180).png
+  完成: benign (180) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (180)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (180)_rg.png
+
+[53/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (151).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (151).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (151).png
+  完成: malignant (151) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (151)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (151)_rg.png
+
+[54/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (138).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (138).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (138).png
+  完成: malignant (138) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (138)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (138)_rg.png
+
+[55/98] 处理: Dataset_BUSI_with_GT\benign\benign (126).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (126).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (126).png
+  完成: benign (126) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (126)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (126)_rg.png
+
+[56/98] 处理: Dataset_BUSI_with_GT\benign\benign (394).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (394).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (394).png
+  完成: benign (394) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (394)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (394)_rg.png
+
+[57/98] 处理: Dataset_BUSI_with_GT\benign\benign (258).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (258).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (258).png
+  完成: benign (258) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (258)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (258)_rg.png
+
+[58/98] 处理: Dataset_BUSI_with_GT\benign\benign (92).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (92).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (92).png
+  完成: benign (92) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (92)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (92)_rg.png
+
+[59/98] 处理: Dataset_BUSI_with_GT\benign\benign (139).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (139).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (139).png
+  完成: benign (139) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (139)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (139)_rg.png
+
+[60/98] 处理: Dataset_BUSI_with_GT\benign\benign (337).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (337).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (337).png
+  完成: benign (337) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (337)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (337)_rg.png
+
+[61/98] 处理: Dataset_BUSI_with_GT\benign\benign (17).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (17).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (17).png
+  完成: benign (17) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (17)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (17)_rg.png
+
+[62/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (162).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (162).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (162).png
+  完成: malignant (162) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (162)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (162)_rg.png
+
+[63/98] 处理: Dataset_BUSI_with_GT\benign\benign (190).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (190).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (190).png
+  完成: benign (190) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (190)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (190)_rg.png
+
+[64/98] 处理: Dataset_BUSI_with_GT\benign\benign (43).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (43).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (43).png
+  完成: benign (43) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (43)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (43)_rg.png
+
+[65/98] 处理: Dataset_BUSI_with_GT\benign\benign (427).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (427).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (427).png
+  完成: benign (427) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (427)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (427)_rg.png
+
+[66/98] 处理: Dataset_BUSI_with_GT\benign\benign (37).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (37).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (37).png
+  完成: benign (37) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (37)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (37)_rg.png
+
+[67/98] 处理: Dataset_BUSI_with_GT\benign\benign (414).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (414).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (414).png
+  完成: benign (414) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (414)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (414)_rg.png
+
+[68/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (38).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (38).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (38).png
+  完成: malignant (38) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (38)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (38)_rg.png
+
+[69/98] 处理: Dataset_BUSI_with_GT\benign\benign (246).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (246).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (246).png
+  完成: benign (246) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (246)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (246)_rg.png
+
+[70/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (41).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (41).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (41).png
+  完成: malignant (41) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (41)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (41)_rg.png
+
+[71/98] 处理: Dataset_BUSI_with_GT\benign\benign (158).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (158).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (158).png
+  完成: benign (158) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (158)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (158)_rg.png
+
+[72/98] 处理: Dataset_BUSI_with_GT\benign\benign (69).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (69).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (69).png
+  完成: benign (69) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (69)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (69)_rg.png
+
+[73/98] 处理: Dataset_BUSI_with_GT\benign\benign (143).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (143).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (143).png
+  完成: benign (143) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (143)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (143)_rg.png
+
+[74/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (204).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (204).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (204).png
+  完成: malignant (204) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (204)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (204)_rg.png
+
+[75/98] 处理: Dataset_BUSI_with_GT\benign\benign (296).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (296).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (296).png
+  完成: benign (296) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (296)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (296)_rg.png
+
+[76/98] 处理: Dataset_BUSI_with_GT\benign\benign (134).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (134).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (134).png
+  完成: benign (134) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (134)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (134)_rg.png
+
+[77/98] 处理: Dataset_BUSI_with_GT\benign\benign (283).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (283).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (283).png
+  完成: benign (283) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (283)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (283)_rg.png
+
+[78/98] 处理: Dataset_BUSI_with_GT\benign\benign (389).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (389).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (389).png
+  完成: benign (389) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (389)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (389)_rg.png
+
+[79/98] 处理: Dataset_BUSI_with_GT\benign\benign (104).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (104).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (104).png
+  完成: benign (104) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (104)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (104)_rg.png
+
+[80/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (72).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (72).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (72).png
+  完成: malignant (72) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (72)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (72)_rg.png
+
+[81/98] 处理: Dataset_BUSI_with_GT\benign\benign (70).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (70).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (70).png
+  完成: benign (70) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (70)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (70)_rg.png
+
+[82/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (61).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (61).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (61).png
+  完成: malignant (61) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (61)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (61)_rg.png
+
+[83/98] 处理: Dataset_BUSI_with_GT\benign\benign (87).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (87).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (87).png
+  完成: benign (87) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (87)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (87)_rg.png
+
+[84/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (28).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (28).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (28).png
+  完成: malignant (28) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (28)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (28)_rg.png
+
+[85/98] 处理: Dataset_BUSI_with_GT\benign\benign (38).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (38).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (38).png
+  完成: benign (38) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (38)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (38)_rg.png
+
+[86/98] 处理: Dataset_BUSI_with_GT\benign\benign (409).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (409).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (409).png
+  完成: benign (409) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (409)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (409)_rg.png
+
+[87/98] 处理: Dataset_BUSI_with_GT\benign\benign (177).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (177).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (177).png
+  完成: benign (177) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (177)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (177)_rg.png
+
+[88/98] 处理: Dataset_BUSI_with_GT\benign\benign (330).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (330).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (330).png
+  完成: benign (330) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (330)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (330)_rg.png
+
+[89/98] 处理: Dataset_BUSI_with_GT\benign\benign (338).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (338).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (338).png
+  完成: benign (338) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (338)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (338)_rg.png
+
+[90/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (59).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (59).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (59).png
+  完成: malignant (59) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (59)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (59)_rg.png
+
+[91/98] 处理: Dataset_BUSI_with_GT\benign\benign (198).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (198).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (198).png
+  完成: benign (198) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (198)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (198)_rg.png
+
+[92/98] 处理: Dataset_BUSI_with_GT\benign\benign (232).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (232).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (232).png
+  完成: benign (232) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (232)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (232)_rg.png
+
+[93/98] 处理: Dataset_BUSI_with_GT\benign\benign (136).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (136).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (136).png
+  完成: benign (136) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (136)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (136)_rg.png
+
+[94/98] 处理: Dataset_BUSI_with_GT\benign\benign (413).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (413).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (413).png
+  完成: benign (413) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (413)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (413)_rg.png
+
+[95/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (107).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (107).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (107).png
+  完成: malignant (107) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (107)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (107)_rg.png
+
+[96/98] 处理: Dataset_BUSI_with_GT\benign\benign (15).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (15).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\benign\benign (15).png
+  完成: benign (15) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\benign (15)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\benign (15)_rg.png
+
+[97/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (96).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (96).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (96).png
+  完成: malignant (96) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (96)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (96)_rg.png
+
+[98/98] 处理: Dataset_BUSI_with_GT\malignant\malignant (209).png
+找到图像: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (209).png
+  最终使用图像路径: D:\PycharmProjects\Breast-Cancer\src\data\Dataset_BUSI_with_GT\Dataset_BUSI_with_GT\malignant\malignant (209).png
+  完成: malignant (209) -> 已保存至
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_otsu\malignant (209)_otsu.png
+    D:\PycharmProjects\Breast-Cancer\outputs/figures/results_region_growing\malignant (209)_rg.png
+
+全部处理完成！成功处理 98/98 张图像。
