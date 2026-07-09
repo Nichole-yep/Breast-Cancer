@@ -1,0 +1,13 @@
+efficientnet_pytorch
+matplotlib
+numpy
+opencv-python
+pandas
+scipy
+seaborn
+sklearn
+torch
+torchvision
+thop
+tqdm
+
