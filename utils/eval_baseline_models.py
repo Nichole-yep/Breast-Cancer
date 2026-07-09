@@ -1,10 +1,20 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 # ========================= 中文注释说明 =========================
 # 本文件负责评估训练好的 baseline 模型。
 # 目的：把 U-Net、Attention U-Net、DeepLabV3+ 的输出接入小组统一评价指标。
 # 数据入口：使用 preprocess/dataset.py 的 BUSIDataset，并设置 augment=False，保证测试过程不做随机增强。
 # 指标入口：复用 evaluate/eval.py 的 SegmentationMetrics，输出 Dice、IoU、Accuracy、Precision、Sensitivity、Specificity、HD95。
 # 权重要求：评估时的 --base_channels 必须和训练时一致，否则 .pth 权重无法正确加载。
-# 输出结果：评估完成后会保存 CSV 到 results/baseline_metrics，方便做横向对比表。
+# 输出结果：评估完成后会保存 CSV 到 outputs/results/baseline_metrics，方便做横向对比表。
 # ===============================================================
 
 # evaluate/eval_baseline_models.py
@@ -14,9 +24,9 @@
 # Breast-Cancer/evaluate/eval_baseline_models.py
 #
 # Example commands:
-# python evaluate/eval_baseline_models.py --model unet --weights results/weights/best_unet.pth --csv_file preprocess/test.csv --device cpu
-# python evaluate/eval_baseline_models.py --model attention_unet --weights results/weights/best_attention_unet.pth --csv_file preprocess/test.csv --device cpu
-# python evaluate/eval_baseline_models.py --model deeplabv3plus --weights results/weights/best_deeplabv3plus.pth --csv_file preprocess/test.csv --device cpu
+# python evaluate/eval_baseline_models.py --model unet --weights outputs/results/weights/best_unet.pth --csv_file src/data/test.csv --device cpu
+# python evaluate/eval_baseline_models.py --model attention_unet --weights outputs/results/weights/best_attention_unet.pth --csv_file src/data/test.csv --device cpu
+# python evaluate/eval_baseline_models.py --model deeplabv3plus --weights outputs/results/weights/best_deeplabv3plus.pth --csv_file src/data/test.csv --device cpu
 
 import os
 import argparse
@@ -26,9 +36,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from preprocess.dataset import BUSIDataset
-from evaluate.eval import SegmentationMetrics
-from models.baseline_models import get_baseline_model
+from src.data.dataset import BUSIDataset
+from utils.eval import SegmentationMetrics
+from src.models.baseline_models import get_baseline_model
+from src.data.dataset import resolve_data_path
 
 
 def extract_logits(model_output):
@@ -82,12 +93,13 @@ def evaluate_model(args):
         base_channels=args.base_channels
     ).to(device)
 
-    if not os.path.exists(args.weights):
-        raise FileNotFoundError(f"Weight file not found: {args.weights}")
+    weights_path = resolve_data_path(args.weights)
+    if not os.path.exists(weights_path):
+        raise FileNotFoundError(f"Weight file not found: {weights_path}")
 
     # Load trained weights and switch to evaluation mode.
     # model.eval() 会关闭 Dropout，并使用 BatchNorm 的推理模式。
-    state_dict = torch.load(args.weights, map_location=device)
+    state_dict = torch.load(str(weights_path), map_location=device)
     model.load_state_dict(state_dict)
     model.eval()
 
@@ -136,8 +148,9 @@ def evaluate_model(args):
 
     # Save metrics as CSV for later report table.
     # 保存为 CSV，方便后续汇总到横向对比表。
-    os.makedirs(args.output_dir, exist_ok=True)
-    result_csv = os.path.join(args.output_dir, f"{args.model}_test_metrics.csv")
+    output_dir = resolve_data_path(args.output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    result_csv = os.path.join(output_dir, f"{args.model}_test_metrics.csv")
     with open(result_csv, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["model", "dice", "iou", "miou", "accuracy", "precision", "sensitivity", "specificity", "hd95_mean", "hd95_std", "valid_hd95_count", "TP", "FP", "FN", "TN"])
@@ -167,14 +180,14 @@ def parse_args():
     parser.add_argument("--model", type=str, required=True,
                         choices=["unet", "attention_unet", "deeplabv3plus"])
     parser.add_argument("--weights", type=str, required=True,
-                        help="Path to trained baseline weights, e.g. results/weights/best_unet.pth")
-    parser.add_argument("--csv_file", type=str, default="preprocess/test.csv")
+                        help="Path to trained baseline weights, e.g. outputs/results/weights/best_unet.pth")
+    parser.add_argument("--csv_file", type=str, default="src/data/test.csv")
 
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--device", type=str, default="cpu", choices=["cpu", "cuda"])
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--base_channels", type=int, default=32)
-    parser.add_argument("--output_dir", type=str, default="results/baseline_metrics")
+    parser.add_argument("--output_dir", type=str, default="outputs/results/baseline_metrics")
 
     parser.add_argument("--no_lee", action="store_true", help="Disable Lee filtering in BUSIDataset if supported.")
     parser.add_argument("--no_clahe", action="store_true", help="Disable CLAHE in BUSIDataset if supported.")

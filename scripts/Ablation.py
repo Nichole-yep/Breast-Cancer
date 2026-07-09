@@ -11,6 +11,16 @@
 完整实验：python ablation.py --mode full
 """
 
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
+
 import os
 
 os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
@@ -26,19 +36,20 @@ from torch.optim.lr_scheduler import CosineAnnealingLR  # 新增
 from torch.cuda.amp import GradScaler
 from tqdm import tqdm
 from PIL import Image
+from src.data.dataset import resolve_data_path
 
 # =========================== 请修改以下配置 ===========================
 # 1. 导入您的核心模型
-from models.ours import OurBreastCancerNet as CoreModel
+from src.models.ours import OurBreastCancerNet as CoreModel
 
 # 2. 数据集路径
-TRAIN_CSV = 'preprocess/train.csv'
-VAL_CSV = 'preprocess/val.csv'
-TEST_CSV = 'preprocess/test.csv'  # 测试集路径
+TRAIN_CSV = 'src/data/train.csv'
+VAL_CSV = 'src/data/val.csv'
+TEST_CSV = 'src/data/test.csv'  # 测试集路径
 
 # 3. 导入损失函数和评估指标
-from loss import tversky_loss
-from evaluate.eval import SegmentationMetrics
+from scripts.loss import tversky_loss
+from utils.eval import SegmentationMetrics
 # =====================================================================
 
 # -------------------- 包装类  --------------------
@@ -193,24 +204,24 @@ class CSVMedicalDataset(Dataset):
 
         # 读取图像
         if img_path.endswith('.npy'):
-            image = np.load(img_path).astype(np.float32)
+            image = np.load(resolve_data_path(img_path)).astype(np.float32)
             if len(image.shape) == 2:
                 image = np.stack([image, image, image], axis=0)
             else:
                 image = np.transpose(image, (2, 0, 1))
             image = torch.from_numpy(image).float()
         else:
-            image = Image.open(img_path).convert('RGB')
+            image = Image.open(resolve_data_path(img_path)).convert('RGB')
             image = torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / 255.0
 
         # 读取掩码
         if mask_path.endswith('.npy'):
-            mask = np.load(mask_path).astype(np.float32)
+            mask = np.load(resolve_data_path(mask_path)).astype(np.float32)
             if len(mask.shape) == 3:
                 mask = mask[:, :, 0]
             mask = torch.from_numpy(mask).float()
         else:
-            mask = Image.open(mask_path).convert('L')
+            mask = Image.open(resolve_data_path(mask_path)).convert('L')
             mask = torch.from_numpy(np.array(mask)).float().unsqueeze(0) / 255.0
 
         # Resize 到统一尺寸

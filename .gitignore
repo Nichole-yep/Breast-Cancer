@@ -1,55 +1,34 @@
-# ==========================================
-# 1. 明确忽略的文件夹 (保留代码，忽略文献)
-# ==========================================
-paper/
-**/train1.py
-
-# ==========================================
-# 2. 忽略所有非代码文档 (根据你的截图)
-# ==========================================
-*.pdf
-*.docx
-*.log
-
-# ==========================================
-# 3. 标准的 Python 忽略项 (防止上传缓存和依赖)
-# ==========================================
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Local environments
 venv/
 .env
-.venv
+.venv/
 
-# ==========================================
-# 4. 深度学习训练产物 (千万别传这些大文件)
-# ==========================================
+# IDE local config
+.idea/
+.vscode/
+
+# Large model weights: keep locally unless teacher explicitly asks to upload them
 *.pth
 *.pt
 *.ckpt
+
+# Training service folders
 runs/
-logs/
-wandb/"test.py" 
-# =========================
-# Local BUSI dataset - do not upload
-# =========================
-comparison/Dataset_BUSI_with_GT/
+wandb/
 
-# =========================
-# Training outputs - do not upload large weights
-# =========================
-results/weights/
-results/logs/
+# Non-code documents not needed in this repository
+paper/
+*.docx
+*.log
 
-
-# =========================
-# PyCharm local files
-# =========================
-.idea/
-.vscode/
-visualization/outputs/ours_pixel_roc_points.csv
-visualization/outputs/ours_pixel_pr_points.csv
-visualization/outputs.zip
-visualization_code_package/
-
+# Keep these tracked for the course project:
+# - src/data/Dataset_BUSI_with_GT/
+# - src/data/train.csv, val.csv, test.csv
+# - outputs/results/
+# - outputs/visualization/outputs/

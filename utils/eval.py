@@ -1,6 +1,17 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 # evaluate_segmentation.py
 import os
 import argparse
+import csv
 import numpy as np
 import cv2
 import pandas as pd
@@ -11,6 +22,7 @@ from torchvision import transforms
 from tqdm import tqdm
 from scipy import ndimage
 import torch.nn as nn
+from src.data.dataset import resolve_data_path, imread_unicode
 
 
 # ========================== 1. 数据集定义 ==========================
@@ -19,7 +31,7 @@ class PreprocessedBUSIDataset(Dataset):
 
     def __init__(self, csv_file, input_size=None, normalize=None, transform=None):
 
-        self.df = pd.read_csv(csv_file)
+        self.df = pd.read_csv(resolve_data_path(csv_file))
         self.input_size = input_size  # (h, w)
         self.normalize = normalize
 
@@ -41,13 +53,13 @@ class PreprocessedBUSIDataset(Dataset):
         mask_path = self.df.iloc[idx]['mask_path']
 
         # 读取图像
-        img = cv2.imread(img_path)
+        img = imread_unicode(resolve_data_path(img_path), cv2.IMREAD_COLOR)
         if img is None:
             raise FileNotFoundError(f"无法读取图像: {img_path}")
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         # 读取掩码（二值化）
-        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        mask = imread_unicode(resolve_data_path(mask_path), cv2.IMREAD_GRAYSCALE)
         if mask is None:
             raise FileNotFoundError(f"无法读取掩码: {mask_path}")
         mask = (mask > 0).astype(np.uint8)
@@ -185,10 +197,10 @@ class SegmentationMetrics:
 
 # ========================== 3. 模型定义（用户需根据实际模型修改） ==========================
 def get_model(weights_path, device, num_classes=1): # 注意：这里是 1
-    from models.ours import OurBreastCancerNet 
+    from src.models.ours import OurBreastCancerNet 
     # 注意 num_classes=1 并且不需要 pretrained 权重（因为我们加载本地权重）
     model = OurBreastCancerNet(pretrained=False, num_classes=1).to(device)
-    state_dict = torch.load(weights_path, map_location=device)
+    state_dict = torch.load(str(resolve_data_path(weights_path)), map_location=device)
     model.load_state_dict(state_dict)
     model.eval()
     return model
@@ -213,11 +225,11 @@ def resize_pred_to_original(pred_tensor, orig_h, orig_w):
 # ========================== 5. 主评估流程 ==========================
 def main():
     parser = argparse.ArgumentParser(description='评估 BUSI 分割模型')
-    parser.add_argument('--weights', type=str, required=True, help='模型权重文件 (.pt/.pth)')
-    parser.add_argument('--csv_file', type=str, required=True, help='测试集 CSV 文件 (含 images 和 masks 列)')
+    parser.add_argument('--weights', type=str, default='outputs/results/weights/best_our_model.pth', help='模型权重文件 (.pt/.pth)')
+    parser.add_argument('--csv_file', type=str, default='src/data/test.csv', help='测试集 CSV 文件')
     parser.add_argument('--batch_size', type=int, default=8, help='批大小')
     parser.add_argument('--num_workers', type=int, default=4, help='数据加载线程数')
-    parser.add_argument('--device', type=str, default='cuda', help='运行设备 (cuda/cpu)')
+    parser.add_argument('--device', type=str, default='cpu', help='运行设备 (cuda/cpu)')
     parser.add_argument('--input_size', type=int, nargs=2, default=[256, 256],
                         help='模型输入尺寸 (height width)，例如 --input_size 256 256')
     parser.add_argument('--normalize', action='store_true', help='是否使用 ImageNet 归一化')
@@ -301,6 +313,36 @@ def main():
         f"HD95 (均值 ± 标准差): {scores['hd95_mean']:.2f} ± {scores['hd95_std']:.2f} 像素 (有效样本数: {scores['valid_hd95_count']})")
     print(f"混淆矩阵 (前景类): TP={scores['TP']}, FP={scores['FP']}, FN={scores['FN']}, TN={scores['TN']}")
     print("=" * 60)
+
+    # 6. 保存结果，统一放到 outputs/results/
+    out_dir = resolve_data_path("outputs/results")
+    os.makedirs(out_dir, exist_ok=True)
+    txt_path = out_dir / "test_results.txt"
+    csv_path = out_dir / "test_results.csv"
+
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write("=" * 60 + "\n")
+        f.write("BUSI 测试集评估结果\n")
+        f.write("=" * 60 + "\n")
+        f.write(f"Dice 系数:           {scores['dice']:.4f}\n")
+        f.write(f"IoU (Jaccard):       {scores['iou']:.4f}\n")
+        f.write(f"平均 IoU (背景+前景): {scores['miou']:.4f}\n")
+        f.write(f"准确率 (Accuracy):   {scores['accuracy']:.4f}\n")
+        f.write(f"精确度 (Precision):  {scores['precision']:.4f}\n")
+        f.write(f"灵敏度 (Sensitivity):{scores['sensitivity']:.4f}\n")
+        f.write(f"特异度 (Specificity):{scores['specificity']:.4f}\n")
+        f.write(f"HD95 (均值 ± 标准差): {scores['hd95_mean']:.2f} ± {scores['hd95_std']:.2f} 像素\n")
+        f.write(f"有效 HD95 样本数:    {scores['valid_hd95_count']}\n")
+        f.write(f"混淆矩阵 (前景类): TP={scores['TP']}, FP={scores['FP']}, FN={scores['FN']}, TN={scores['TN']}\n")
+
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Metric", "Value"])
+        for key in ["dice", "iou", "miou", "accuracy", "precision", "sensitivity", "specificity", "hd95_mean", "hd95_std", "valid_hd95_count", "TP", "FP", "FN", "TN"]:
+            writer.writerow([key, scores[key]])
+
+    print(f"Saved evaluation TXT to: {txt_path}")
+    print(f"Saved evaluation CSV to: {csv_path}")
 
 
 if __name__ == '__main__':

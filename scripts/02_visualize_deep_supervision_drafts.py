@@ -8,8 +8,18 @@ According to models/ours.py, forward() returns 4 prediction maps:
     output[3] = final 1/1 prediction
 
 Output:
-    visualization/outputs/deep_supervision_drafts.{png,pdf,svg}
+    outputs/visualization/outputs/deep_supervision_drafts.{png,pdf,svg}
 """
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 from pathlib import Path
 import argparse
 
@@ -17,7 +27,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
-from viz_utils import (
+from utils.viz_utils import (
     ensure_dir, read_split_csv, load_image_and_mask, load_ours_model,
     sigmoid_prob, resize_prob_to_mask_size, save_figure_all_formats,
 )
@@ -25,9 +35,9 @@ from viz_utils import (
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--csv_file", default="preprocess/test.csv")
-    parser.add_argument("--weights", default="results/weights/best_our_model.pth")
-    parser.add_argument("--out_dir", default="visualization/outputs")
+    parser.add_argument("--csv_file", default="src/data/test.csv")
+    parser.add_argument("--weights", default="outputs/results/weights/best_our_model.pth")
+    parser.add_argument("--out_dir", default="outputs/visualization/outputs")
     parser.add_argument("--num_samples", type=int, default=3)
     parser.add_argument("--input_size", type=int, nargs=2, default=[256, 256])
     parser.add_argument("--device", default="cpu")

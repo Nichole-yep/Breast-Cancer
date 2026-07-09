@@ -1,3 +1,13 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 # test_best_model.py
 import os
 import torch
@@ -7,9 +17,9 @@ from tqdm import tqdm
 import csv
 
 # 导入与训练代码相同的组件
-from models.ours import OurBreastCancerNet
-from preprocess.dataset import get_loaders
-from evaluate.eval import SegmentationMetrics
+from src.models.ours import OurBreastCancerNet
+from src.data.dataset import get_loaders
+from utils.eval import SegmentationMetrics
 
 def test_best_model():
     # 1. 设置设备
@@ -19,9 +29,9 @@ def test_best_model():
     # 2. 加载测试集（使用与训练相同的预处理）
     print(" 正在加载测试集...")
     _, _, test_loader = get_loaders(
-        train_csv='preprocess/train.csv', 
-        val_csv='preprocess/val.csv', 
-        test_csv='preprocess/test.csv',
+        train_csv='src/data/train.csv', 
+        val_csv='src/data/val.csv', 
+        test_csv='src/data/test.csv',
         batch_size=1,  # 测试时通常使用 batch_size=1
         use_lee=True,
         use_clahe=True
@@ -31,7 +41,7 @@ def test_best_model():
     # 3. 初始化模型并加载最佳权重
     print(" 正在加载最佳模型权重...")
     model = OurBreastCancerNet(pretrained=False).to(DEVICE)  # pretrained=False 因为我们加载本地权重
-    weights_path = "results/weights/best_our_model.pth"
+    weights_path = "outputs/results/weights/best_our_model.pth"
     
     if not os.path.exists(weights_path):
         print(f"错误: 权重文件 {weights_path} 不存在!")
@@ -114,10 +124,10 @@ def test_best_model():
 
 def save_test_results(scores):
     """保存测试结果到文件"""
-    os.makedirs("results", exist_ok=True)
+    os.makedirs("outputs/results", exist_ok=True)
     
     # 保存为文本文件
-    with open("results/test_results.txt", "w", encoding="utf-8") as f:
+    with open("outputs/results/test_results.txt", "w", encoding="utf-8") as f:
         f.write("="*60 + "\n")
         f.write(" 测试集 (Test Set) 最终成绩单 \n")
         f.write("="*60 + "\n")
@@ -134,7 +144,7 @@ def save_test_results(scores):
         f.write("="*60 + "\n")
     
     # 保存为 CSV 文件（方便后续分析）
-    csv_path = "results/test_results.csv"
+    csv_path = "outputs/results/test_results.csv"
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["Metric", "Value"])
@@ -152,7 +162,7 @@ def save_test_results(scores):
         writer.writerow(["FN", scores['FN']])
         writer.writerow(["TN", scores['TN']])
     
-    print(f" 测试结果已保存至: results/test_results.txt")
+    print(f" 测试结果已保存至: outputs/results/test_results.txt")
     print(f" CSV 格式结果已保存至: {csv_path}")
 
 if __name__ == '__main__':

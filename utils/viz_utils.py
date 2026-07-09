@@ -2,6 +2,16 @@
 Shared utilities for BUSI segmentation visualization.
 Put this file in: Breast-Cancer/visualization/viz_utils.py
 """
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 import os
 import sys
 from pathlib import Path
@@ -11,6 +21,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
+from src.data.dataset import resolve_data_path, imread_unicode
 
 
 def add_project_root_to_path():
@@ -33,7 +44,7 @@ def read_split_csv(csv_file):
     - img_path, mask_path  (from preprocess/dataset.py)
     - images, masks        (from evaluate/eval.py)
     """
-    df = pd.read_csv(csv_file)
+    df = pd.read_csv(resolve_data_path(csv_file))
     columns = set(df.columns)
     if {"img_path", "mask_path"}.issubset(columns):
         img_col, mask_col = "img_path", "mask_path"
@@ -64,10 +75,10 @@ def lee_filter(img, window=7):
 
 def load_image_and_mask(img_path, mask_path, input_size=(256, 256), use_lee=False, use_clahe=False):
     """Load BUSI image/mask and prepare both display arrays and model input tensor."""
-    img_gray = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
+    img_gray = imread_unicode(resolve_data_path(img_path), cv2.IMREAD_GRAYSCALE)
     if img_gray is None:
         raise FileNotFoundError(f"Cannot read image: {img_path}")
-    mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
+    mask = imread_unicode(resolve_data_path(mask_path), cv2.IMREAD_GRAYSCALE)
     if mask is None:
         raise FileNotFoundError(f"Cannot read mask: {mask_path}")
     mask = (mask > 127).astype(np.uint8)
@@ -103,10 +114,10 @@ def load_image_and_mask(img_path, mask_path, input_size=(256, 256), use_lee=Fals
 def load_ours_model(weights_path, device="cpu"):
     """Load the final OurBreastCancerNet model."""
     add_project_root_to_path()
-    from models.ours import OurBreastCancerNet
+    from src.models.ours import OurBreastCancerNet
 
     model = OurBreastCancerNet(pretrained=False, num_classes=1).to(device)
-    state = torch.load(weights_path, map_location=device)
+    state = torch.load(str(resolve_data_path(weights_path)), map_location=device)
     if isinstance(state, dict) and "model_state_dict" in state:
         state = state["model_state_dict"]
     elif isinstance(state, dict) and "state_dict" in state:

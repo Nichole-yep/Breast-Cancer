@@ -1,3 +1,13 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 # ========================= 中文注释说明 =========================
 # 本文件负责训练 baseline 对照模型。
 # 目的：让 U-Net、Attention U-Net、DeepLabV3+ 使用同一个数据集划分、同一个预处理、同一个 loss 设置。
@@ -31,10 +41,10 @@ import numpy as np    # [新增: 数组处理]
 import matplotlib.pyplot as plt  # [新增: 用于画训练曲线]
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_precision_score # [新增: ROC/PR曲线]
 
-from preprocess.dataset import get_loaders
-from evaluate.eval import SegmentationMetrics
-from models.baseline_models import get_baseline_model
-from baseline_loss import BCETverskyLoss
+from src.data.dataset import get_loaders
+from utils.eval import SegmentationMetrics
+from src.models.baseline_models import get_baseline_model
+from scripts.baseline_loss import BCETverskyLoss
 from thop import profile # [新增: 导入 thop 用于算 FLOPs 和参数量]
 
 def extract_logits(model_output):
@@ -441,9 +451,9 @@ def parse_args():
     parser.add_argument("--model", type=str, required=True,
                         choices=["unet", "attention_unet", "deeplabv3plus"],
                         help="Baseline model name.")
-    parser.add_argument("--train_csv", type=str, default="preprocess/train.csv")
-    parser.add_argument("--val_csv", type=str, default="preprocess/val.csv")
-    parser.add_argument("--test_csv", type=str, default="preprocess/test.csv")
+    parser.add_argument("--train_csv", type=str, default="src/data/train.csv")
+    parser.add_argument("--val_csv", type=str, default="src/data/val.csv")
+    parser.add_argument("--test_csv", type=str, default="src/data/test.csv")
 
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--batch_size", type=int, default=2,
@@ -455,8 +465,8 @@ def parse_args():
                         help="Model width. Use 16 if CPU memory is limited; use 32 for normal baseline.")
 
     parser.add_argument("--device", type=str, default="cpu", choices=["cpu", "cuda"])
-    parser.add_argument("--save_dir", type=str, default="results/weights")
-    parser.add_argument("--log_dir", type=str, default="results/logs")
+    parser.add_argument("--save_dir", type=str, default="outputs/results/weights")
+    parser.add_argument("--log_dir", type=str, default="outputs/results/logs")
 
     parser.add_argument("--no_lee", action="store_true", help="Disable Lee filtering in BUSIDataset if supported.")
     parser.add_argument("--no_clahe", action="store_true", help="Disable CLAHE in BUSIDataset if supported.")

@@ -1,3 +1,13 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 # test_exp_A_complete.py
 import os
 import argparse
@@ -6,6 +16,7 @@ import numpy as np
 import cv2
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from src.data.dataset import resolve_data_path, imread_unicode
 
 # ========================== 从你的 evaluate_segmentation.py 复制必要的组件 ==========================
 class PreprocessedBUSIDataset:
@@ -24,13 +35,13 @@ class PreprocessedBUSIDataset:
         mask_path = self.df.iloc[idx]['mask_path']
 
         # 读取图像
-        img = cv2.imread(img_path)
+        img = imread_unicode(resolve_data_path(img_path), cv2.IMREAD_COLOR)
         if img is None:
             raise FileNotFoundError(f"无法读取图像: {img_path}")
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         # 读取掩码（二值化）
-        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        mask = imread_unicode(resolve_data_path(mask_path), cv2.IMREAD_GRAYSCALE)
         if mask is None:
             raise FileNotFoundError(f"无法读取掩码: {mask_path}")
         mask = (mask > 0).astype(np.uint8)
@@ -141,14 +152,14 @@ class SegmentationMetrics:
 
 
 # ========================== 从消融实验代码导入模型构建 ==========================
-from Ablation import ExperimentConfig, build_model
+from scripts.Ablation import ExperimentConfig, build_model
 import torch.nn.functional as F
 
 
 def main():
     parser = argparse.ArgumentParser(description='评估 BUSI 分割模型 (完整版)')
-    parser.add_argument('--weights', type=str, default='exp_B_best.pth', help='模型权重文件')
-    parser.add_argument('--csv_file', type=str, default='preprocess/test.csv', help='测试集 CSV 文件')
+    parser.add_argument('--weights', type=str, default='outputs/results/weights/exp_B_best.pth', help='模型权重文件')
+    parser.add_argument('--csv_file', type=str, default='src/data/test.csv', help='测试集 CSV 文件')
     parser.add_argument('--batch_size', type=int, default=8, help='批大小')
     parser.add_argument('--input_size', type=int, nargs=2, default=[256, 256], help='模型输入尺寸')
     parser.add_argument('--normalize', action='store_true', help='是否使用 ImageNet 归一化')

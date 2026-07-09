@@ -1,3 +1,13 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 import os
 import time  # [新增: 用于计算推理FPS]
 import csv   # [新增: 用于保存测试集独立样本指标]
@@ -10,12 +20,12 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_precision_score # [新增: ROC/PR曲线]
 
 # 导入我们的模型和 Loss
-from models.ours import OurBreastCancerNet
-from loss import DBDSLoss, dice_loss
+from src.models.ours import OurBreastCancerNet
+from scripts.loss import DBDSLoss, dice_loss
 # 导入预处理模块
-from preprocess.dataset import get_loaders
+from src.data.dataset import get_loaders
 # 导入评估
-from evaluate.eval import SegmentationMetrics
+from utils.eval import SegmentationMetrics
 
 # [新增: 导入 thop 用于算 FLOPs 和参数量]
 from thop import profile
@@ -28,15 +38,15 @@ def train_and_validate():
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f" 正在使用计算设备: {DEVICE}")
 
-    os.makedirs("results/val_preds", exist_ok=True)
-    os.makedirs("results/plots", exist_ok=True) # 确保绘图文件夹存在
+    os.makedirs("outputs/results/val_preds", exist_ok=True)
+    os.makedirs("outputs/results/plots", exist_ok=True) # 确保绘图文件夹存在
 
     # 2. 调用 DataLoader
     print(" 正在加载真实数据集...")
     train_loader, val_loader, test_loader = get_loaders(
-        train_csv='preprocess/train.csv', 
-        val_csv='preprocess/val.csv', 
-        test_csv='preprocess/test.csv',
+        train_csv='src/data/train.csv', 
+        val_csv='src/data/val.csv', 
+        test_csv='src/data/test.csv',
         batch_size=BATCH_SIZE,
         use_lee=True,
         use_clahe=True
@@ -48,15 +58,15 @@ def train_and_validate():
     optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=1e-6)
     
-    os.makedirs("results/logs", exist_ok=True)
-    csv_log_path = "results/logs/our_model_training_log.csv"
+    os.makedirs("outputs/results/logs", exist_ok=True)
+    csv_log_path = "outputs/results/logs/our_model_training_log.csv"
 
     # 写入 CSV 表头
     with open(csv_log_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["epoch", "train_loss", "val_dice", "val_iou", "val_hd95_mean"])
 
-    os.makedirs("results/weights", exist_ok=True)
+    os.makedirs("outputs/results/weights", exist_ok=True)
     best_val_dice = 0.0 
 
     # 用于存储训练过程中的指标
@@ -136,7 +146,7 @@ def train_and_validate():
         # 保存最佳模型
         if val_dice > best_val_dice:
             best_val_dice = val_dice
-            torch.save(model.state_dict(), "results/weights/best_our_model.pth")
+            torch.save(model.state_dict(), "outputs/results/weights/best_our_model.pth")
             print(f" 最佳模型 (最佳 Dice: {best_val_dice:.4f}) 已保存！\n")
         else:
             print("\n")
@@ -183,7 +193,7 @@ def train_and_validate():
     axes[1, 1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('results/plots/training_and_dynamic_weights_curves.png', dpi=300)
+    plt.savefig('outputs/results/plots/training_and_dynamic_weights_curves.png', dpi=300)
     plt.close()
     # ============================================================
 
@@ -197,7 +207,7 @@ def test_best_model(model, test_loader, DEVICE):
     print(" 开始在 Test 集上进行全面评估 (含复杂度、ROC与统计学数据) ")
     print("="*60)
     
-    model.load_state_dict(torch.load("results/weights/best_our_model.pth", map_location=DEVICE))
+    model.load_state_dict(torch.load("outputs/results/weights/best_our_model.pth", map_location=DEVICE))
     model.eval()
     
     # ========== [新增: 计算 Params, FLOPs] ==========
@@ -220,7 +230,7 @@ def test_best_model(model, test_loader, DEVICE):
     # ==========================================================
 
     # ========== [新增: 收集逐样本数据用于统计学检验] ==========
-    per_sample_csv_path = "results/metrics/test_per_sample_metrics.csv"
+    per_sample_csv_path = "outputs/results/metrics/test_per_sample_metrics.csv"
     with open(per_sample_csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["sample_id", "dice", "iou", "hd95"])
@@ -319,9 +329,9 @@ def test_best_model(model, test_loader, DEVICE):
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('results/plots/test_roc_pr_curves.png', dpi=300)
+    plt.savefig('outputs/results/plots/test_roc_pr_curves.png', dpi=300)
     plt.close()
-    print(" 曲线图已保存至: results/plots/test_roc_pr_curves.png")
+    print(" 曲线图已保存至: outputs/results/plots/test_roc_pr_curves.png")
     # ==========================================================
 
     save_test_results(scores, fps)
@@ -329,7 +339,7 @@ def test_best_model(model, test_loader, DEVICE):
 
 def save_test_results(scores, fps):
     os.makedirs("results", exist_ok=True)
-    with open("results/test_results.txt", "w") as f:
+    with open("outputs/results/test_results.txt", "w") as f:
         f.write("="*50 + "\n")
         f.write(" 测试集 (Test Set) 最终成绩单 \n")
         f.write("="*50 + "\n")
@@ -341,7 +351,7 @@ def save_test_results(scores, fps):
         f.write(f"HD95:          {scores['hd95_mean']:.2f} 像素\n")
         f.write(f"FPS:           {fps:.2f} \n")
         f.write("="*50 + "\n")
-    print(f" 测试文本日志已保存至: results/test_results.txt")
+    print(f" 测试文本日志已保存至: outputs/results/test_results.txt")
     
 if __name__ == '__main__':
     train_and_validate()

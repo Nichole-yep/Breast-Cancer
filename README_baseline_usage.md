@@ -1,62 +1,113 @@
-# Baseline Code Package
+# Breast-Cancer BUSI Segmentation Project
 
-把这 3 个文件放到你们项目对应位置：
+本仓库为整理后的最终 GitHub 结构：
 
 ```text
 Breast-Cancer/
-├── models/
-│   └── baseline_models.py
-├── train_baseline_models.py
-└── evaluate/
-    └── eval_baseline_models.py
+├── configs/
+├── scripts/                 # 训练、测试、可视化入口脚本
+├── src/
+│   ├── core/                # backbone / PPM / CBAM / decoder
+│   ├── data/                # BUSI 数据集、train/val/test.csv、prepare_data.py
+│   └── models/              # DBDS-Net 与 baseline 模型
+├── utils/                   # 评估、混淆矩阵、可视化工具
+└── outputs/                 # 所有输出结果、图、日志、指标
 ```
 
-## 先测试模型是否能输出正确形状
+## 1. 数据划分
 
-```bash
-python models/baseline_models.py
-```
-
-预期输出类似：
+数据集放在：
 
 ```text
-unet torch.Size([2, 1, 256, 256])
-attention_unet torch.Size([2, 1, 256, 256])
-deeplabv3plus torch.Size([2, 1, 256, 256])
+src/data/Dataset_BUSI_with_GT/
 ```
 
-## 训练 U-Net baseline
-
-CPU 建议先用小参数测试：
+重新生成划分：
 
 ```bash
-python train_baseline_models.py --model unet --device cpu --epochs 2 --batch_size 1 --base_channels 16
+python src/data/prepare_data.py
 ```
 
-正式一点可以用：
+输出：
+
+```text
+src/data/train.csv
+src/data/val.csv
+src/data/test.csv
+```
+
+## 2. 测试模型结构
 
 ```bash
-python train_baseline_models.py --model unet --device cpu --epochs 50 --batch_size 2 --base_channels 32
+python src/models/baseline_models.py
+python src/models/ours.py
 ```
 
-## 评估 U-Net baseline
+## 3. 评估最终模型 DBDS-Net
+
+权重默认读取：
+
+```text
+outputs/results/weights/best_our_model.pth
+```
+
+运行：
 
 ```bash
-python evaluate/eval_baseline_models.py --model unet --weights results/weights/best_unet.pth --csv_file preprocess/test.csv --device cpu
+python utils/eval.py --device cpu
 ```
 
-## 训练和评估其他 baseline
+如需手动指定权重：
 
 ```bash
-python train_baseline_models.py --model attention_unet --device cpu --epochs 50 --batch_size 2
-python evaluate/eval_baseline_models.py --model attention_unet --weights results/weights/best_attention_unet.pth --csv_file preprocess/test.csv --device cpu
-
-python train_baseline_models.py --model deeplabv3plus --device cpu --epochs 50 --batch_size 2
-python evaluate/eval_baseline_models.py --model deeplabv3plus --weights results/weights/best_deeplabv3plus.pth --csv_file preprocess/test.csv --device cpu
+python utils/eval.py --weights outputs/results/weights/best_our_model.pth --csv_file src/data/test.csv --device cpu
 ```
 
-## 说明
+输出保存到：
 
-- 训练和评估都使用你们自己的 `preprocess/dataset.py`。
-- 评价指标使用你们自己的 `evaluate/eval.py` 里的 `SegmentationMetrics`。
-- baseline loss 使用 `0.5 * BCEWithLogitsLoss + 0.5 * DiceLoss`，不使用 Edge Loss，这样作为对比模型更清楚。
+```text
+outputs/results/
+```
+
+## 4. 生成可视化结果
+
+```bash
+python scripts/01_visualize_ours_prediction_boundary.py --device cpu
+python scripts/02_visualize_deep_supervision_drafts.py --device cpu
+python scripts/03_plot_training_curves.py
+python scripts/04_plot_pixel_roc_pr.py --device cpu
+python scripts/05_visualize_feature_maps_ppm_cbam.py --device cpu
+python scripts/06_visualize_failure_cases.py --device cpu
+python scripts/07_plot_ours_training_curves.py
+```
+
+输出统一保存到：
+
+```text
+outputs/visualization/outputs/
+```
+
+## 5. 评估 baseline 模型
+
+```bash
+python utils/eval_baseline_models.py --model unet --weights outputs/results/weights/best_unet.pth --device cpu
+python utils/eval_baseline_models.py --model attention_unet --weights outputs/results/weights/best_attention_unet.pth --device cpu
+python utils/eval_baseline_models.py --model deeplabv3plus --weights outputs/results/weights/best_deeplabv3plus.pth --device cpu
+```
+
+输出保存到：
+
+```text
+outputs/results/baseline_metrics/
+```
+
+## 6. 注意
+
+所有脚本建议在项目根目录运行，例如：
+
+```bash
+cd E:\FinalGithubProject\Breast-Cancer
+python scripts/04_plot_pixel_roc_pr.py --device cpu
+```
+
+不要在 `scripts/` 或 `src/` 子文件夹里直接运行，否则相对路径容易混乱。

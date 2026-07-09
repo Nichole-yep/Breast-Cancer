@@ -2,24 +2,34 @@
 Plot baseline training curves.
 
 Input:
-    results/logs/unet_training_log.csv
-    results/logs/attention_unet_training_log.csv
-    results/logs/deeplabv3plus_training_log.csv
+    outputs/results/logs/unet_training_log.csv
+    outputs/results/logs/attention_unet_training_log.csv
+    outputs/results/logs/deeplabv3plus_training_log.csv
 Optional:
-    results/logs/ours_training_log.csv, if available later.
+    outputs/results/logs/ours_training_log.csv, if available later.
 
 Output:
-    visualization/outputs/training_loss_curve.{png,pdf,svg}
-    visualization/outputs/validation_dice_curve.{png,pdf,svg}
-    visualization/outputs/validation_iou_curve.{png,pdf,svg}
+    outputs/visualization/outputs/training_loss_curve.{png,pdf,svg}
+    outputs/visualization/outputs/validation_dice_curve.{png,pdf,svg}
+    outputs/visualization/outputs/validation_iou_curve.{png,pdf,svg}
 """
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 from pathlib import Path
 import argparse
 
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from viz_utils import ensure_dir, save_figure_all_formats
+from utils.viz_utils import ensure_dir, save_figure_all_formats
 
 
 def read_log(path):
@@ -66,8 +76,8 @@ def plot_metric(log_items, metric, ylabel, out_base):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--log_dir", default="results/logs")
-    parser.add_argument("--out_dir", default="visualization/outputs")
+    parser.add_argument("--log_dir", default="outputs/results/logs")
+    parser.add_argument("--out_dir", default="outputs/visualization/outputs")
     args = parser.parse_args()
 
     ensure_dir(args.out_dir)

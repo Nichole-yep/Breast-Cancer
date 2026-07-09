@@ -1,3 +1,13 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 # visualization/07_plot_ours_training_curves.py
 # -*- coding: utf-8 -*-
 
@@ -12,14 +22,14 @@ Expected CSV columns:
     val_hd95_mean
 
 Example:
-    python visualization/07_plot_ours_training_curves.py --csv results/logs/our_model_training_log.csv
+    python visualization/07_plot_ours_training_curves.py --csv outputs/results/logs/our_model_training_log.csv
 
 Outputs:
-    visualization/outputs/ours_training_loss_curve.png/.pdf/.svg
-    visualization/outputs/ours_validation_dice_curve.png/.pdf/.svg
-    visualization/outputs/ours_validation_iou_curve.png/.pdf/.svg
-    visualization/outputs/ours_validation_hd95_curve.png/.pdf/.svg
-    visualization/outputs/ours_training_curves_panel.png/.pdf/.svg
+    outputs/visualization/outputs/ours_training_loss_curve.png/.pdf/.svg
+    outputs/visualization/outputs/ours_validation_dice_curve.png/.pdf/.svg
+    outputs/visualization/outputs/ours_validation_iou_curve.png/.pdf/.svg
+    outputs/visualization/outputs/ours_validation_hd95_curve.png/.pdf/.svg
+    outputs/visualization/outputs/ours_training_curves_panel.png/.pdf/.svg
 """
 
 from pathlib import Path
@@ -113,12 +123,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--csv",
-        default="results/logs/our_model_training_log.csv",
+        default="outputs/results/logs/our_model_training_log.csv",
         help="Path to our model training log CSV."
     )
     parser.add_argument(
         "--out_dir",
-        default="visualization/outputs",
+        default="outputs/visualization/outputs",
         help="Directory to save output figures."
     )
     args = parser.parse_args()
@@ -130,7 +140,7 @@ def main():
     if not csv_path.exists():
         raise FileNotFoundError(
             f"Cannot find CSV file: {csv_path}\n"
-            "Please put our_model_training_log.csv into results/logs/ "
+            "Please put our_model_training_log.csv into outputs/results/logs/ "
             "or pass its path with --csv."
         )
 

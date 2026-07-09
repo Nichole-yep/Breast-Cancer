@@ -1,3 +1,13 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -45,5 +55,7 @@ precision = cm_percent[:, 1].sum()
 #         horizontalalignment='center', transform=ax.transAxes, fontsize=12, color='darkred')
 
 plt.tight_layout()
-plt.savefig('confusion_matrix_C.png', dpi=300, bbox_inches='tight')
+import os
+os.makedirs('outputs/figures', exist_ok=True)
+plt.savefig('outputs/figures/confusion_matrix_C.png', dpi=300, bbox_inches='tight')
 plt.show()

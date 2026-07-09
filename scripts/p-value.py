@@ -1,12 +1,22 @@
+
+# AUTO PATH FIX FOR FINAL GITHUB STRUCTURE
+from pathlib import Path as _Path
+import sys as _sys
+_PROJECT_ROOT = _Path(__file__).resolve().parents[1]
+for _p in [_PROJECT_ROOT, _PROJECT_ROOT / "src"]:
+    _s = str(_p)
+    if _s not in _sys.path:
+        _sys.path.insert(0, _s)
+# END AUTO PATH FIX
 import pandas as pd
 import numpy as np
 from scipy.stats import ttest_rel, wilcoxon
 
 # ===================== 1. 读取数据 =====================
-unet_df = pd.read_csv("results/logs/test_unet_per_sample_metrics.csv")
-ours_df = pd.read_csv("results/metrics/test_per_sample_metrics.csv") 
-deeplabv3plus_df = pd.read_csv("results/logs/test_deeplabv3plus_per_sample_metrics.csv")
-attention_df = pd.read_csv("results/logs/test_attention_unet_per_sample_metrics.csv")
+unet_df = pd.read_csv("outputs/results/logs/test_unet_per_sample_metrics.csv")
+ours_df = pd.read_csv("outputs/results/metrics/test_per_sample_metrics.csv") 
+deeplabv3plus_df = pd.read_csv("outputs/results/logs/test_deeplabv3plus_per_sample_metrics.csv")
+attention_df = pd.read_csv("outputs/results/logs/test_attention_unet_per_sample_metrics.csv")
 
 # ===================== 2. 数据对齐检查（最关键） =====================
 print("=" * 60)
